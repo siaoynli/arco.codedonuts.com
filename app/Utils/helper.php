@@ -34,18 +34,17 @@ function ping(): string
  * @param int $expiry
  * @return string
  */
-function sys_auth($string, string $operation = 'ENCODE', string $key = '', int $expiry = 0): string
+function sys_auth($string, string $operation = 'ENCODE', string $key = '', int $key_length = 4, int $expiry = 0): string
 {
     $string = trim($string);
     if ($operation == 'ENCODE') {
         $string = urlencode($string);
     }
 
-    $key_length = 4;
-    $key = md5($key != '' ? $key : env('APP_KEY'));
+    $key = md5($key != '' ? $key : 'sWI8ugjr7DRRFhP6OUgRpv5QUkxTzGoKoCpwS4lr1gQ');
     $fixedkey = md5($key);
     $egiskeys = md5(substr($fixedkey, 16, 16));
-    $runtokey = $operation == 'ENCODE' ? substr(md5((string)microtime(true)), -$key_length) : substr($string, 0, $key_length);
+    $runtokey = $key_length ? ($operation == 'ENCODE' ? substr(md5((string)microtime(true)), -$key_length) : substr($string, 0, $key_length)) : '';
     $keys = md5(substr($runtokey, 0, 16) . substr($fixedkey, 0, 16) . substr($runtokey, 16) . substr($fixedkey, 16));
     $string = $operation == 'ENCODE' ? sprintf('%010d', $expiry ? $expiry + time() : 0) . substr(md5($string . $egiskeys), 0, 16) . $string : base64_decode(substr($string, $key_length));
 
