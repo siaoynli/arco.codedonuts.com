@@ -14,6 +14,5 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    $a= sys_auth('welcome');
-    return sys_auth($a,"decode");
+   return ping();
 });
