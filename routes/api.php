@@ -1,8 +1,9 @@
 <?php
 
-use App\Models\User;
+use App\Http\Controllers\Api\V1\AuthenticateController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -20,22 +21,12 @@ Route::get('/', function (Request $request) {
 
 
 //创建令牌
-Route::get('/sanctum/token', function (Request $request) {
-    $user = User::where('id', 1)->first();
-    $device_name = $request->get("device_name", "webkit");
-    return $user->createToken($device_name)->plainTextToken;
-});
-
+Route::get('/login', [AuthenticateController::class, "login"]);
 
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
     //获取用户
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+    Route::get('/user', [AuthenticateController::class, "authenticate"]);
     //退出登陆
-    Route::get('/logout', function (Request $request) {
-        //撤销所有令牌
-        return $request->user()->tokens()->delete();
-    });
+    Route::get('/logout', [AuthenticateController::class, "logout"]);
 });

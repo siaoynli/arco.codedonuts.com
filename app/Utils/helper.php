@@ -8,7 +8,7 @@
  * @Copyright (c) 2022 http://www.hangzhou.com.cn All rights reserved.
  */
 
-declare (strict_types=1);
+declare(strict_types=1);
 
 /**
  * @Author: lixiaoyun
@@ -20,6 +20,22 @@ declare (strict_types=1);
 function ping(): string
 {
     return "it's ok!";
+}
+
+
+/**
+ * @Author: lixiaoyun
+ * @Email: 120235331@qq.com
+ * @Date: 2022/7/7 15:59
+ * @Description:  获取bearerToken ID
+ * @return int
+ */
+function getAuthorizationTokenId(): int
+{
+    $token = request()->bearerToken();
+    if (!$token) return 0;
+
+    return (int)explode("|", $token)[0];
 }
 
 
