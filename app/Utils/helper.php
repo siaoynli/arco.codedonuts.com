@@ -26,15 +26,16 @@ function ping(): string
 /**
  * @Author: lixiaoyun
  * @Email: 120235331@qq.com
- * @Date: 2022/7/7 14:18
+ * @Date: 2022/7/7 14:45
  * @Description: 数据加密解密
  * @param $string
  * @param string $operation
  * @param string $key
  * @param int $expiry
+ * @param int $key_length
  * @return string
  */
-function sys_auth($string, string $operation = 'ENCODE', string $key = '', int $key_length = 4, int $expiry = 0): string
+function sys_auth($string, string $operation = 'ENCODE', string $key = '', int $expiry = 0, int $key_length = 4): string
 {
     $string = trim($string);
     if ($operation == 'ENCODE') {
