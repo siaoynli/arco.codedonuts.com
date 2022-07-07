@@ -44,3 +44,6 @@ function sys_auth($string, string $operation = 'ENCODE', string $key = '', int $
         }
     }
 }
+
+
+
