@@ -38,6 +38,34 @@ function getAuthorizationTokenId(): int
     return (int)explode("|", $token)[0];
 }
 
+/**
+ * @Author: lixiaoyun
+ * @Email: 120235331@qq.com
+ * @Date: 2022/7/7 17:11
+ * @Description: 返回json格式信息
+ * @param string $message
+ * @param int $error
+ * @param int $code
+ * @return \Illuminate\Http\JsonResponse
+ */
+function responseJsonMessage(string $message, int $error = 1, int $code = 200): \Illuminate\Http\JsonResponse
+{
+    return response()->json(["message" => $message, "error" => $error], $code);
+}
+
+/**
+ * @Author: lixiaoyun
+ * @Email: 120235331@qq.com
+ * @Date: 2022/7/7 17:12
+ * @Description: 返回数据列表
+ * @param array $data
+ * @return \Illuminate\Http\JsonResponse
+ */
+function responseJsonDataList(array $data = []): \Illuminate\Http\JsonResponse
+{
+    return response()->json(["data" => $data, "error" => 0]);
+}
+
 
 /**
  * @Author: lixiaoyun

@@ -16,6 +16,14 @@ class AuthenticateController extends Controller
 
     public function login(Request $request)
     {
+
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+            'device_name' => 'required',
+        ]);
+
+
         $user = User::where('id', 1)->first();
         $device_name = $request->get("device_name", "pc");
         if (!in_array($device_name, $this->devices)) {

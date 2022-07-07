@@ -9,35 +9,50 @@ use Illuminate\Auth\Middleware\Authenticate as Middleware;
 class Authenticate extends Middleware
 {
 
-    
     /**
-     * Handle an unauthenticated user.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  array  $guards
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/7 16:40
+     * @Description:
+     * @param $request
+     * @param array $guards
      * @return void
-     *
-     * @throws \Illuminate\Auth\AuthenticationException
+     * @throws AuthenticationException
      */
-    protected function unauthenticated($request, array $guards): void
+    protected function unauthenticated($request, array $guards)
     {
-        dd($request->expectsJson());
         throw new AuthenticationException(
-            'Unauthenticated.', $guards, $this->redirectTo($request)
+            '没有权限，Token已经失效.', $guards, $this->redirectTo($request)
         );
     }
 
 
     /**
-     * Get the path the user should be redirected to when they are not authenticated.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return string|null
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/7 16:38
+     * @Description: 如果是ajax请求或者是api请求，授权失效，抛出错误信息
+     * @param $request
+     * @return string|void|null
      */
-    protected function redirectTo($request): ?string
+    protected function redirectTo($request)
     {
-        if (! $request->expectsJson()) {
+        if (!$this->shouldReturnJson($request)) {
             return route('login');
         }
     }
+
+    /**
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/7 16:42
+     * @Description: 判断返回json格式条件
+     * @param $request
+     * @return bool
+     */
+    protected function shouldReturnJson($request)
+    {
+        return $request->expectsJson() || $request->is("api/*");
+    }
+
 }
