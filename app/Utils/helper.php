@@ -21,7 +21,7 @@ use Illuminate\Http\JsonResponse;
  */
 function ping(): string
 {
-    return "it's ok!";
+    return "it's works ok!";
 }
 
 

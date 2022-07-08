@@ -1,4 +1,15 @@
 <?php
+/*
+ * @Author     : lixiaoyun
+ * @Email      : 120235331@qq.com
+ * @Github     : http://www.github.com/siaoynli
+ * @Date       : 2022/7/8 9:13
+ * @Description: 异常重写
+ * @Copyright (c) 2022 http://www.hangzhou.com.cn All rights reserved.
+ */
+
+
+declare(strict_types=1);
 
 namespace App\Exceptions;
 
@@ -7,33 +18,35 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Router;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
 {
+
     /**
-     * A list of exception types with their corresponding custom log levels.
-     *
-     * @var array<class-string<\Throwable>, \Psr\Log\LogLevel::*>
+     * 异常类型列表及其相应的自定义日志级别。
+     * @var array
      */
     protected $levels = [
         //
     ];
 
     /**
-     * A list of the exception types that are not reported.
-     *
-     * @var array<int, class-string<\Throwable>>
+     * 不需要报告的异常类型列表。
+     * @var array
      */
     protected $dontReport = [
         //
     ];
 
     /**
-     * A list of the inputs that are never flashed to the session on validation exceptions.
+     * 验证异常时不验证的参数。
      *
      * @var array<int, string>
      */
@@ -44,8 +57,10 @@ class Handler extends ExceptionHandler
     ];
 
     /**
-     * Register the exception handling callbacks for the application.
-     *
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/8 12:44
+     * @Description: 为应用程序注册异常处理回调。
      * @return void
      */
     public function register(): void
@@ -63,10 +78,10 @@ class Handler extends ExceptionHandler
      * @Description: 增加http_not_found
      * @param $request
      * @param Throwable $e
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response|mixed|\Symfony\Component\HttpFoundation\Response
+     * @return JsonResponse|RedirectResponse|\Illuminate\Http\Response|mixed|Response
      * @throws \ReflectionException
      */
-    public function render($request, Throwable $e)
+    public function render($request, Throwable $e): mixed
     {
         if (method_exists($e, 'render') && $response = $e->render($request)) {
             return Router::toResponse($request, $response);
@@ -114,9 +129,9 @@ class Handler extends ExceptionHandler
      * @Description: 页面不存在提示信息
      * @param $request
      * @param NotFoundHttpException $exception
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\Response
+     * @return JsonResponse|\Illuminate\Http\Response|Response
      */
-    protected function httpNotFound($request, NotFoundHttpException $exception)
+    protected function httpNotFound($request, NotFoundHttpException $exception): \Illuminate\Http\Response|JsonResponse|Response
     {
         return $this->shouldReturnJson($request, $exception)
             ? responseJsonMessage('Http Not Found', 1, $exception->getStatusCode())
@@ -131,9 +146,9 @@ class Handler extends ExceptionHandler
      * @Description: 登陆失效
      * @param $request
      * @param AuthenticationException $exception
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @return JsonResponse|RedirectResponse|Response
      */
-    protected function unauthenticated($request, AuthenticationException $exception)
+    protected function unauthenticated($request, AuthenticationException $exception): JsonResponse|Response|RedirectResponse
     {
         return $this->shouldReturnJson($request, $exception)
             ? responseJsonMessage($exception->getMessage(), 1, 401)
@@ -148,9 +163,9 @@ class Handler extends ExceptionHandler
      * @Description: 重写表单校验第一条错误信息
      * @param $request
      * @param ValidationException $exception
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    protected function invalidJson($request, ValidationException $exception): \Illuminate\Http\JsonResponse
+    protected function invalidJson($request, ValidationException $exception): JsonResponse
     {
         return responseJsonMessage($exception->validator->errors()->first(), 1, $exception->status);
 

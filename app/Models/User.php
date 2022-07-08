@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Laravel\Sanctum\NewAccessToken;
+
 
 class User extends Authenticatable
 {
@@ -50,19 +50,20 @@ class User extends Authenticatable
     ];
 
 
-
     /**
      * @Author: lixiaoyun
      * @Email: 120235331@qq.com
      * @Date: 2022/7/8 9:13
-     * @Description: 获取token
+     * @Description: accessToken赋值，返回token
      * @param string $device_name
      * @return string
      */
     public function getSanctumToken(string $device_name = "pc"): string
     {
         $device_name = strtolower($device_name);
-        return $this->createToken($device_name)->plainTextToken;
+        $_newAccessToken = $this->createToken($device_name);
+        $this->accessToken = $_newAccessToken->accessToken;
+        return $_newAccessToken->plainTextToken;
     }
 
     /**
@@ -70,6 +71,7 @@ class User extends Authenticatable
      * @Email: 120235331@qq.com
      * @Date: 2022/7/8 9:14
      * @Description: 删除用户当前设备所有token
+     * @param string $device_name
      * @return int
      */
     public function destroySanctumTokens(string $device_name = ""): int
