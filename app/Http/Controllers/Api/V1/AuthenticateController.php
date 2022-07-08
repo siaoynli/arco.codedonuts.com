@@ -32,7 +32,13 @@ class AuthenticateController extends Controller
 
         $user->destroySanctumTokens($device_name);
 
-        return responseJsonData(["token" => $user->getSanctumToken($device_name)]);
+        $token = $user->getSanctumToken($device_name);
+
+
+        //显示过期时间
+        $expire_at = now()->addMinutes(config("sanctum.expiration", null))->toDateTimeString();
+
+        return responseJsonData(["token" => $token, "expire_at" => $expire_at]);
     }
 
     /**
