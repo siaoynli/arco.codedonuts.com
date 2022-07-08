@@ -26,7 +26,7 @@ Route::get('/login', [AuthenticateController::class, "login"]);
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
     //获取用户
-    Route::get('/user', [AuthenticateController::class, "authenticate"]);
+    Route::get('/user', [AuthenticateController::class, "current"]);
     //退出登陆
     Route::get('/logout', [AuthenticateController::class, "logout"]);
 });

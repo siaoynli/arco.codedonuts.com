@@ -26,16 +26,14 @@ function ping(): string
 /**
  * @Author: lixiaoyun
  * @Email: 120235331@qq.com
- * @Date: 2022/7/7 15:59
- * @Description:  获取bearerToken ID
- * @return int
+ * @Date: 2022/7/8 9:23
+ * @Description: 获取bearerToken
+ * @return string|null
  */
-function getAuthorizationTokenId(): int
+function getAuthorizationToken(): string|null
 {
-    $token = request()->bearerToken();
-    if (!$token) return 0;
+    return request()->bearerToken();
 
-    return (int)explode("|", $token)[0];
 }
 
 /**
