@@ -10,6 +10,8 @@
 
 declare(strict_types=1);
 
+use Illuminate\Http\JsonResponse;
+
 /**
  * @Author: lixiaoyun
  * @Email: 120235331@qq.com
@@ -44,9 +46,9 @@ function getAuthorizationToken(): string|null
  * @param string $message
  * @param int $error
  * @param int $code
- * @return \Illuminate\Http\JsonResponse
+ * @return JsonResponse
  */
-function responseJsonMessage(string $message, int $error = 1, int $code = 200): \Illuminate\Http\JsonResponse
+function responseJsonMessage(string $message, int $error = 1, int $code = 200): JsonResponse
 {
     return response()->json(["message" => $message, "error" => $error], $code);
 }
@@ -57,11 +59,24 @@ function responseJsonMessage(string $message, int $error = 1, int $code = 200): 
  * @Date: 2022/7/7 17:12
  * @Description: 返回数据列表
  * @param array $data
- * @return \Illuminate\Http\JsonResponse
+ * @return JsonResponse
  */
-function responseJsonDataList(array $data = []): \Illuminate\Http\JsonResponse
+function responseJsonDataList(array $data = []): JsonResponse
 {
     return response()->json(["data" => $data, "error" => 0]);
+}
+
+/**
+ * @Author: lixiaoyun
+ * @Email: 120235331@qq.com
+ * @Date: 2022/7/8 9:41
+ * @Description: 返回json格式数据
+ * @param array $data
+ * @return JsonResponse
+ */
+function responseJsonData(array $data = []): JsonResponse
+{
+    return response()->json(array_merge($data, ["error" => 0]));
 }
 
 

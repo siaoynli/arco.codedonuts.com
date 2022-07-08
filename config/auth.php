@@ -40,6 +40,12 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        //laravel sanctums
+        'sanctums' => [
+            'driver' => 'session',
+            'provider' => 'sanctums',
+        ],
     ],
 
     /*
@@ -61,6 +67,11 @@ return [
 
     'providers' => [
         'users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\User::class,
+        ],
+
+        'sanctums' => [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
