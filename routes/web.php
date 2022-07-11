@@ -14,5 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-   return ping();
+
+    dispatch(new \App\Jobs\AliSmsQueue('13516872342', \App\Utils\AliSms::CodeMessage('6748')))->onQueue("sms");
+    return ping();
 });
