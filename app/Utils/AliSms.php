@@ -52,7 +52,7 @@ class AliSms
      * @param string $code
      * @return array
      */
-    #[ArrayShape(['template' => "string", 'data' => "string[]"])] public static function CodeMessage(string $code): array
+    #[ArrayShape(['template' => "string", 'data' => "string[]"])] public static function codeMessage(string $code): array
     {
         return [
             'template' => self::DEFAULT_SMS_TEMPLATE_AUTH,

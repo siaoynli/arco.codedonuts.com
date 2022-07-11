@@ -18,6 +18,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Router;
@@ -100,8 +101,10 @@ class Handler extends ExceptionHandler
         return match (true) {
             $e instanceof HttpResponseException => $e->getResponse(),
             $e instanceof AuthenticationException => $this->unauthenticated($request, $e),
-            $e instanceof NotFoundHttpException => $this->httpNotFound($request, $e),
             $e instanceof ValidationException => $this->convertValidationExceptionToResponse($e, $request),
+            $e instanceof NotFoundHttpException => $this->httpNotFound($request, $e),
+            $e instanceof ThrottleRequestsException => $this->throttleRequestsException($request, $e),
+
             default => $this->renderExceptionResponse($request, $e),
         };
     }
@@ -136,6 +139,20 @@ class Handler extends ExceptionHandler
         return $this->shouldReturnJson($request, $exception)
             ? responseJsonMessage('Http Not Found', 1, $exception->getStatusCode())
             : $this->prepareResponse($request, $exception);
+    }
+
+    /**
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/11 16:38
+     * @Description: 请求次数过多
+     * @param $request
+     * @param ThrottleRequestsException $exception
+     * @return JsonResponse
+     */
+    protected function throttleRequestsException($request, ThrottleRequestsException $exception): JsonResponse
+    {
+        return responseJsonMessage("请求次数超过系统限制！", 1, $exception->getStatusCode());
     }
 
 

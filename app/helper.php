@@ -11,6 +11,8 @@
 declare(strict_types=1);
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * @Author: lixiaoyun
@@ -24,6 +26,21 @@ function ping(): string
     return "it's works ok!";
 }
 
+/**
+ * @Author: lixiaoyun
+ * @Email: 120235331@qq.com
+ * @Date: 2022/7/11 16:13
+ * @Description: 缓存添加标签
+ * @return \Illuminate\Cache\CacheManager|\Illuminate\Contracts\Foundation\Application|mixed|void
+ */
+function newCache()
+{
+    $arguments = func_get_args();
+    if (empty($arguments)) {
+        return cache();
+    }
+    cache()->tag((string)$arguments[0]);
+}
 
 /**
  * @Author: lixiaoyun
@@ -74,9 +91,46 @@ function responseJsonDataList(array $data = []): JsonResponse
  * @param array $data
  * @return JsonResponse
  */
-function responseJsonData(array $data = []): JsonResponse
+function responseJsonData(array $data = [], $code = 201): JsonResponse
 {
-    return response()->json(array_merge($data, ["error" => 0]));
+    return response()->json(array_merge($data, ["error" => 0]), $code);
+}
+
+/**
+ * @Author: lixiaoyun
+ * @Email: 120235331@qq.com
+ * @Date: 2022/7/11 16:14
+ * @Description: 计算现在到00：00时间差
+ * @return float|int
+ */
+function diffSecondsToMorn(): float|int
+{
+    $date = date('Y-m-d', strtotime('+1 day'));
+    $carbon = Carbon::parse($date);
+    return Carbon::now()->diffInSeconds($carbon, false);
+}
+
+
+/**
+ * @Author: lixiaoyun
+ * @Email: 120235331@qq.com
+ * @Date: 2022/7/11 16:57
+ * @Description: 获取真实ip
+ * @return mixed|string
+ */
+function get_client_ip(): mixed
+{
+    $ip = 'unknown';
+    if (getenv('HTTP_CLIENT_IP') && strcasecmp(getenv('HTTP_CLIENT_IP'), 'unknown')) {
+        $ip = getenv('HTTP_CLIENT_IP');
+    } elseif (getenv('HTTP_X_FORWARDED_FOR') && strcasecmp(getenv('HTTP_X_FORWARDED_FOR'), 'unknown')) {
+        $ip = getenv('HTTP_X_FORWARDED_FOR');
+    } elseif (getenv('REMOTE_ADDR') && strcasecmp(getenv('REMOTE_ADDR'), 'unknown')) {
+        $ip = getenv('REMOTE_ADDR');
+    } elseif (isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] && strcasecmp($_SERVER['REMOTE_ADDR'], 'unknown')) {
+        $ip = $_SERVER['REMOTE_ADDR'];
+    }
+    return preg_match('/[\d\.]{7,15}/', $ip, $matches) ? $matches [0] : '';
 }
 
 

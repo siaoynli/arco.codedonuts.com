@@ -3,13 +3,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
+
+use App\Http\Requests\Api\V1\LoginRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 
-class AuthenticateController extends Controller
+class AuthenticateController extends BaseController
 {
 
     private array $devices = ["ios", "android", "pc", "wechat"];
@@ -19,12 +20,58 @@ class AuthenticateController extends Controller
      * @Email: 120235331@qq.com
      * @Date: 2022/7/8 9:34
      * @Description: 登陆接口
-     * @param Request $request
+     * @param LoginRequest $request
      * @return JsonResponse
      */
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $user = User::where('id', 1)->first();
+
+        $type = $request->get("login_type", "code");
+
+        //用户名密码登陆
+        if ($type == "account") {
+            $user = User::where('id', 1)->first();
+        } else {
+            //手机验证码登陆
+            $code = $request->code;
+            $phone_number = $request->phone_number;
+            $verification_key = $request->key;
+            $verifyData = newCache("api")->get($verification_key);
+
+            if (!$verifyData) {
+                return responseJsonMessage("验证码已经失效");
+            }
+
+            if (!hash_equals($verifyData["code"], $code)) {
+                return responseJsonMessage("验证码错误");
+            }
+            if (!hash_equals($verifyData["phone"], $phone_number)) {
+                return responseJsonMessage("手机号码不是验证码发送的手机号码");
+            }
+
+            $user = User::withTrashed()->where("phone", $phone_number)->first();
+
+            //账号不存在或者被删除
+            if (!$user || $user->deleted_at) {
+                return responseJsonMessage("手机号码不存在，请联系管理员");
+            }
+
+            if ($user->status == -1) {
+                return responseJsonMessage("账号已经被冻结,请联系客服人员");
+            }
+
+            if ($user->is_admin == 0) {
+                return responseJsonMessage("账号异常，请联系管理员");
+            }
+
+            $user->login_ip = get_client_ip();
+            $user->login_count = $user->login_count + 1;
+            $user->login_time = now();
+            $user->save();
+
+        }
+
+
         $device_name = $request->get("device_name", "pc");
         if (!in_array($device_name, $this->devices)) {
             $device_name = "pc";
@@ -41,6 +88,7 @@ class AuthenticateController extends Controller
 
         return responseJsonData(["token" => $token, "expire_at" => $expire_at]);
     }
+
 
     /**
      * @Author: lixiaoyun
