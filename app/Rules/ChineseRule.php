@@ -4,7 +4,7 @@ namespace App\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
 
-class PhoneNumberRule implements Rule
+class ChineseRule implements Rule
 {
     /**
      * Create a new rule instance.
@@ -25,7 +25,7 @@ class PhoneNumberRule implements Rule
      */
     public function passes($attribute, $value): bool
     {
-        return (bool)preg_match('/^1[345789]\d{9}$/', $value);
+        return (bool)preg_match('/^[\x7f-\xff]+$/', $value);
     }
 
     /**
@@ -35,6 +35,6 @@ class PhoneNumberRule implements Rule
      */
     public function message(): string
     {
-        return ':attribute 格式不正确';
+        return ':attribute 必须是简体中文';
     }
 }
