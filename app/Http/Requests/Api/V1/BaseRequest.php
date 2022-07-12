@@ -14,7 +14,9 @@ class BaseRequest extends FormRequest
     {
 
         $this->id = $this->route() ? $this->route($this->route()->parameterNames[0]) : 0;
-        $this->setModel();
+        if (method_exists($this, 'setModel')) {
+            $this->setModel();
+        }
         parent::__construct();
     }
 

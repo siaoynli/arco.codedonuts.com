@@ -177,3 +177,41 @@ function sys_auth($string, string $operation = 'ENCODE', string $key = '', int $
     }
 }
 
+/**
+ * @Author: lixiaoyun
+ * @Email: 120235331@qq.com
+ * @Date: 2022/7/12 15:32
+ * @Description:对称加密解密
+ * @param string $data
+ * @return string
+ * @throws Exception
+ */
+function opensslEncrypt(string $data = '', string $publicKey = ""): string
+{
+    if (!function_exists('openssl_public_encrypt')) {
+        throw  new \Exception("openssl_public_encrypt 方法不存在");
+    }
+    $encrypt_data = '';
+    openssl_public_encrypt($data, $encrypt_data, $publicKey);
+    return base64_encode($encrypt_data);
+}
+
+
+/**
+ * @Author: lixiaoyun
+ * @Email: 120235331@qq.com
+ * @Date: 2022/7/12 15:29
+ * @Description: 对称加密解密
+ * @param string $encryptString
+ * @return string
+ * @throws Exception
+ */
+function opensslDecrypt(string $encryptString = '', string $privateKey = ""): string
+{
+    if (!function_exists('openssl_private_decrypt')) {
+        throw  new \Exception("openssl_private_decrypt 方法不存在");
+    }
+    $decrypted = '';
+    openssl_private_decrypt(base64_decode($encryptString), $decrypted, $privateKey);
+    return $decrypted;
+}

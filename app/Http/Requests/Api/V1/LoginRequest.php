@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\V1;
 
 
+use App\Models\User;
 use App\Rules\PhoneNumberRule;
 
 class LoginRequest extends BaseRequest implements RequestInterface
@@ -18,7 +19,7 @@ class LoginRequest extends BaseRequest implements RequestInterface
      */
     public function setModel(): void
     {
-        // TODO: Implement setModel() method.
+        $this->model=User::class;
     }
 
     /**
@@ -48,7 +49,7 @@ class LoginRequest extends BaseRequest implements RequestInterface
             "email" => ["required_if:login_type,account", "email"],
             "password" => ["required_if:login_type,account", "max:50"],
             "phone_number" => ["required_if:login_type,code", new PhoneNumberRule()],
-            "code" => ["required_if:login_type,code", "digits:4"],
+            "code" => ["required_if:login_type,code", "digits:6"],
             "key" => ["required_if:login_type,code", "max:100"],
         ];
 
@@ -101,6 +102,7 @@ class LoginRequest extends BaseRequest implements RequestInterface
             "phone_number.required_if" => "请输入手机号码",
             "code.required_if" => "请输入验证码",
             "key.required_if" => "请输入验证码Key",
+            "digits.required_if" => "验证码是6位数字",
         ];
     }
 }
