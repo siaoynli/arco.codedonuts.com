@@ -24,6 +24,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Router;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
@@ -97,14 +98,14 @@ class Handler extends ExceptionHandler
         if ($response = $this->renderViaCallbacks($request, $e)) {
             return $response;
         }
-
+        //错误信息自定义
         return match (true) {
             $e instanceof HttpResponseException => $e->getResponse(),
             $e instanceof AuthenticationException => $this->unauthenticated($request, $e),
             $e instanceof ValidationException => $this->convertValidationExceptionToResponse($e, $request),
             $e instanceof NotFoundHttpException => $this->httpNotFound($request, $e),
             $e instanceof ThrottleRequestsException => $this->throttleRequestsException($request, $e),
-
+            $e instanceof MethodNotAllowedHttpException => $this->methodNotAllowedHttpException($request, $e),
             default => $this->renderExceptionResponse($request, $e),
         };
     }
@@ -153,6 +154,23 @@ class Handler extends ExceptionHandler
     protected function throttleRequestsException($request, ThrottleRequestsException $exception): JsonResponse
     {
         return responseJsonMessage("请求次数超过系统限制！", 1, $exception->getStatusCode());
+    }
+
+
+    /**
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/12 10:26
+     * @Description: 请求方法不允许
+     * @param $request
+     * @param methodNotAllowedHttpException $exception
+     * @return \Illuminate\Http\Response|JsonResponse|Response
+     */
+    protected function methodNotAllowedHttpException($request, MethodNotAllowedHttpException $exception): \Illuminate\Http\Response|JsonResponse|Response
+    {
+        return $this->shouldReturnJson($request, $exception)
+            ? responseJsonMessage($exception->getMessage(), 1, $exception->getStatusCode())
+            : $this->prepareResponse($request, $exception);
     }
 
 

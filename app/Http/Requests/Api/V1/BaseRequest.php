@@ -12,7 +12,8 @@ class BaseRequest extends FormRequest
 
     public function __construct()
     {
-        $this->id = $this->route($this->route()->parameterNames[0]);
+
+        $this->id = $this->route() ? $this->route($this->route()->parameterNames[0]) : 0;
         $this->setModel();
         parent::__construct();
     }
@@ -53,9 +54,9 @@ class BaseRequest extends FormRequest
     {
         $methodName = strtolower($this->method()) . 'Rules';
         if (!method_exists($this, $methodName)) {
-            throw  new \Exception(__CLASS__ . ' method' . $methodName . "does not exist");
+            throw  new \Exception(__CLASS__ . '：method ' . $methodName . " does not exist");
         }
-        return $this->$methodName();
+        return $this->setRules($this->$methodName());
     }
 
 
@@ -76,9 +77,10 @@ class BaseRequest extends FormRequest
      * @Email: 120235331@qq.com
      * @Date: 2022/7/11 17:19
      * @Description:循环rules，把校验条件重新赋值
+     * @param array $rules
      * @return array
      */
-    public function setRules(array $rules): array
+    private function setRules(array $rules): array
     {
         if ($this->get("_id", 0)) {
             $_rule = [];

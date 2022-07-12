@@ -24,14 +24,13 @@ class LoginRequest extends BaseRequest implements RequestInterface
     /**
      * @Author: lixiaoyun
      * @Email: 120235331@qq.com
-     * @Date: 2022/7/11 17:11
+     * @Date: 2022/7/12 10:05
      * @Description:
      * @return array
      * @throws \Exception
      */
     public function rules(): array
     {
-
         return parent::rules();
     }
 
@@ -46,12 +45,13 @@ class LoginRequest extends BaseRequest implements RequestInterface
     {
         return [
             "login_type" => ["required", "in:code,account"],
-            "email" => ["required"],
-            "password" => ["required"],
-            "phone_number" => ["required", new PhoneNumberRule()],
-            "code" => ["required"],
-            "key" => ["required"],
+            "email" => ["required_if:login_type,account", "email"],
+            "password" => ["required_if:login_type,account", "max:50"],
+            "phone_number" => ["required_if:login_type,code", new PhoneNumberRule()],
+            "code" => ["required_if:login_type,code", "digits:4"],
+            "key" => ["required_if:login_type,code", "max:100"],
         ];
+
     }
 
     /**
@@ -63,22 +63,22 @@ class LoginRequest extends BaseRequest implements RequestInterface
      */
     public function putRules(): array
     {
-        $rules = [];
-        return parent::setRules($rules);;
+        return [];
+
     }
 
     /**
      * @Author: lixiaoyun
      * @Email: 120235331@qq.com
      * @Date: 2022/7/11 17:40
-     * @Description:
+     * @Description:  合并自定义错误属性名
      * @return array
      */
     public function attributes(): array
     {
         return array_merge(parent::attributes(),
             [
-                'key' => '验证码Key',
+
             ]
         );
     }
@@ -91,10 +91,16 @@ class LoginRequest extends BaseRequest implements RequestInterface
      * @Description: ${CARET}
      * @return array
      */
-    public function message(): array
+    public function messages(): array
     {
         return [
-            "login_type.required" => "登陆类型必须填写",
+            "login_type.required" => "登陆类型必须指定",
+            "login_type.in" => "登陆类型有误",
+            "email.required_if" => "请输入邮箱",
+            "password.required_if" => "请输入密码",
+            "phone_number.required_if" => "请输入手机号码",
+            "code.required_if" => "请输入验证码",
+            "key.required_if" => "请输入验证码Key",
         ];
     }
 }

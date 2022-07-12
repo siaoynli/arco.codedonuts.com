@@ -28,8 +28,8 @@ Route::group(['middleware' => 'throttle:10,1'], function () {
 });
 
 
-//创建令牌
-Route::get('/login', [AuthenticateController::class, "login"])->name("user.login");
+//用户登陆
+Route::post('/login', [AuthenticateController::class, "login"])->name("user.login");
 
 
 Route::group(['middleware' => 'auth:sanctum'], function () {

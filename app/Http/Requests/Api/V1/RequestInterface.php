@@ -25,5 +25,5 @@ interface RequestInterface
 
     public function attributes(): array;
 
-    public function message(): array;
+    public function messages(): array;
 }
