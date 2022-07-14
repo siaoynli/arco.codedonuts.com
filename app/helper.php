@@ -10,9 +10,11 @@
 
 declare(strict_types=1);
 
+use Illuminate\Cache\CacheManager;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Cache;
+
 
 /**
  * @Author: lixiaoyun
@@ -31,7 +33,7 @@ function ping(): string
  * @Email: 120235331@qq.com
  * @Date: 2022/7/11 16:13
  * @Description: 缓存添加标签
- * @return \Illuminate\Cache\CacheManager|\Illuminate\Contracts\Foundation\Application|mixed|void
+ * @return CacheManager|Application|mixed|void
  */
 function newCache()
 {
@@ -39,7 +41,7 @@ function newCache()
     if (empty($arguments)) {
         return cache();
     }
-    cache()->tag((string)$arguments[0]);
+    return cache()->tags((string)$arguments[0]);
 }
 
 /**
@@ -55,45 +57,34 @@ function getAuthorizationToken(): string|null
 
 }
 
-/**
- * @Author: lixiaoyun
- * @Email: 120235331@qq.com
- * @Date: 2022/7/7 17:11
- * @Description: 返回json格式信息
- * @param string $message
- * @param int $error
- * @param int $code
- * @return JsonResponse
- */
-function responseJsonMessage(string $message, int $error = 1, int $code = 200): JsonResponse
-{
-    return response()->json(["message" => $message, "error" => $error], $code);
-}
 
 /**
  * @Author: lixiaoyun
  * @Email: 120235331@qq.com
  * @Date: 2022/7/7 17:12
- * @Description: 返回数据列表
+ * @Description: 返回成功信息
  * @param array $data
+ * @param string $message
  * @return JsonResponse
  */
-function responseJsonDataList(array $data = []): JsonResponse
+function successResponseData(array $data = [], string $message = ""): JsonResponse
 {
-    return response()->json(["data" => $data, "error" => 0]);
+    return response()->json(["data" => $data, "message" => $message, "error" => 0]);
 }
 
 /**
  * @Author: lixiaoyun
  * @Email: 120235331@qq.com
  * @Date: 2022/7/8 9:41
- * @Description: 返回json格式数据
+ * @Description: 返回失败信息
+ * @param string $message
+ * @param int $code
  * @param array $data
  * @return JsonResponse
  */
-function responseJsonData(array $data = [], $code = 201): JsonResponse
+function failResponseData(string $message = "", int $code = 201, array $data = []): JsonResponse
 {
-    return response()->json(array_merge($data, ["error" => 0]), $code);
+    return response()->json(["data" => $data, "message" => $message, "error" => 1], $code);
 }
 
 /**
@@ -183,6 +174,7 @@ function sys_auth($string, string $operation = 'ENCODE', string $key = '', int $
  * @Date: 2022/7/12 15:32
  * @Description:对称加密解密
  * @param string $data
+ * @param string $publicKey
  * @return string
  * @throws Exception
  */
@@ -203,6 +195,7 @@ function opensslEncrypt(string $data = '', string $publicKey = ""): string
  * @Date: 2022/7/12 15:29
  * @Description: 对称加密解密
  * @param string $encryptString
+ * @param string $privateKey
  * @return string
  * @throws Exception
  */

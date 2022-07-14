@@ -55,7 +55,7 @@ class RSA
         if (!extension_loaded('openssl')) {
             throw new Exception('openssl extension does not exist');
         }
-        self::$privatePass = $privatePass ? $privatePass : self::$privatePass;
+        self::$privatePass = $privatePass ?: self::$privatePass;
         //生成证书
         $privkey = openssl_pkey_new(self::$config);
         $csr = openssl_csr_new(self::$dn, $privkey);

@@ -138,7 +138,7 @@ class Handler extends ExceptionHandler
     protected function httpNotFound($request, NotFoundHttpException $exception): \Illuminate\Http\Response|JsonResponse|Response
     {
         return $this->shouldReturnJson($request, $exception)
-            ? responseJsonMessage('Http Not Found', 1, $exception->getStatusCode())
+            ? failResponseData('Http Not Found',  $exception->getStatusCode())
             : $this->prepareResponse($request, $exception);
     }
 
@@ -153,7 +153,7 @@ class Handler extends ExceptionHandler
      */
     protected function throttleRequestsException($request, ThrottleRequestsException $exception): JsonResponse
     {
-        return responseJsonMessage("请求次数超过系统限制！", 1, $exception->getStatusCode());
+        return failResponseData("请求次数超过系统限制！", $exception->getStatusCode());
     }
 
 
@@ -169,7 +169,7 @@ class Handler extends ExceptionHandler
     protected function methodNotAllowedHttpException($request, MethodNotAllowedHttpException $exception): \Illuminate\Http\Response|JsonResponse|Response
     {
         return $this->shouldReturnJson($request, $exception)
-            ? responseJsonMessage($exception->getMessage(), 1, $exception->getStatusCode())
+            ? failResponseData($exception->getMessage(), $exception->getStatusCode())
             : $this->prepareResponse($request, $exception);
     }
 
@@ -186,7 +186,7 @@ class Handler extends ExceptionHandler
     protected function unauthenticated($request, AuthenticationException $exception): JsonResponse|Response|RedirectResponse
     {
         return $this->shouldReturnJson($request, $exception)
-            ? responseJsonMessage($exception->getMessage(), 1, 401)
+            ? failResponseData($exception->getMessage(),  401)
             : redirect()->guest($exception->redirectTo() ?? route('login'));
     }
 
@@ -202,7 +202,7 @@ class Handler extends ExceptionHandler
      */
     protected function invalidJson($request, ValidationException $exception): JsonResponse
     {
-        return responseJsonMessage($exception->validator->errors()->first(), 1, $exception->status);
+        return failResponseData($exception->validator->errors()->first(),  $exception->status);
 
     }
 

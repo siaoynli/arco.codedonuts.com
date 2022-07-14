@@ -45,10 +45,10 @@ class LoginRequest extends BaseRequest implements RequestInterface
     public function postRules(): array
     {
         return [
-            "login_type" => ["required", "in:code,account"],
+            "loginType" => ["required", "in:code,account"],
             "email" => ["required_if:login_type,account", "email"],
             "password" => ["required_if:login_type,account", "max:50"],
-            "phone_number" => ["required_if:login_type,code", new PhoneNumberRule()],
+            "phone" => ["required_if:login_type,code", new PhoneNumberRule()],
             "code" => ["required_if:login_type,code", "digits:6"],
             "key" => ["required_if:login_type,code", "max:100"],
         ];
@@ -95,11 +95,11 @@ class LoginRequest extends BaseRequest implements RequestInterface
     public function messages(): array
     {
         return [
-            "login_type.required" => "登陆类型必须指定",
-            "login_type.in" => "登陆类型有误",
+            "loginType.required" => "登陆类型必须指定",
+            "loginType.in" => "登陆类型有误",
             "email.required_if" => "请输入邮箱",
             "password.required_if" => "请输入密码",
-            "phone_number.required_if" => "请输入手机号码",
+            "phone.required_if" => "请输入手机号码",
             "code.required_if" => "请输入验证码",
             "key.required_if" => "请输入验证码Key",
             "digits.required_if" => "验证码是6位数字",

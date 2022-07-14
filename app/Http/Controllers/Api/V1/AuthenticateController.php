@@ -26,7 +26,7 @@ class AuthenticateController extends BaseController
     public function login(LoginRequest $request)
     {
 
-        $type = $request->get("login_type", "code");
+        $type = $request->get("loginType", "code");
 
         //用户名密码登陆
         if ($type == "account") {
@@ -34,34 +34,34 @@ class AuthenticateController extends BaseController
         } else {
             //手机验证码登陆
             $code = $request->code;
-            $phone_number = $request->phone_number;
+            $phone = $request->phone;
             $verification_key = $request->key;
             $verifyData = newCache("api")->get($verification_key);
 
             if (!$verifyData) {
-                return responseJsonMessage("验证码已经失效");
+                return failResponseData("验证码已经失效");
             }
 
             if (!hash_equals($verifyData["code"], $code)) {
-                return responseJsonMessage("验证码错误");
+                return failResponseData("验证码错误");
             }
-            if (!hash_equals($verifyData["phone"], $phone_number)) {
-                return responseJsonMessage("手机号码不是验证码发送的手机号码");
+            if (!hash_equals($verifyData["phone"], $phone)) {
+                return failResponseData("手机号码不是验证码发送的手机号码");
             }
 
-            $user = User::withTrashed()->where("phone", $phone_number)->first();
+            $user = User::withTrashed()->where("phone", $phone)->first();
 
             //账号不存在或者被删除
             if (!$user || $user->deleted_at) {
-                return responseJsonMessage("手机号码不存在，请联系管理员");
+                return failResponseData("手机号码不存在，请联系管理员");
             }
 
             if ($user->status == -1) {
-                return responseJsonMessage("账号已经被冻结,请联系客服人员");
+                return failResponseData("账号已经被冻结,请联系客服人员");
             }
 
             if ($user->is_admin == 0) {
-                return responseJsonMessage("账号异常，请联系管理员");
+                return failResponseData("账号异常，请联系管理员");
             }
 
             $user->login_ip = get_client_ip();
@@ -86,7 +86,7 @@ class AuthenticateController extends BaseController
         //显示过期时间，token创建时间+过期分钟数
         $expire_at = $user->currentAccessToken()->created_at->addMinutes(config("sanctum.expiration", null))->toDateTimeString();
 
-        return responseJsonData(["token" => $token, "expire_at" => $expire_at]);
+        return successResponseData(["token" => $token, "expireAt" => $expire_at]);
     }
 
 
