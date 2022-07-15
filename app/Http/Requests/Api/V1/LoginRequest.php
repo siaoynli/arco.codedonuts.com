@@ -47,7 +47,7 @@ class LoginRequest extends BaseRequest implements RequestInterface
         return [
             "loginType" => ["required", "in:code,account"],
             "email" => ["required_if:login_type,account", "email"],
-            "password" => ["required_if:login_type,account", "max:50"],
+            "password" => ["required_if:login_type,account", "max:250"],
             "phone" => ["required_if:login_type,code", new PhoneNumberRule()],
             "code" => ["required_if:login_type,code", "digits:6"],
             "key" => ["required_if:login_type,code", "max:100"],

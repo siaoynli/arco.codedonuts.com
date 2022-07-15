@@ -56,6 +56,7 @@ class RSA
             throw new Exception('openssl extension does not exist');
         }
         self::$privatePass = $privatePass ?: self::$privatePass;
+
         //生成证书
         $privkey = openssl_pkey_new(self::$config);
         $csr = openssl_csr_new(self::$dn, $privkey);
@@ -87,12 +88,16 @@ class RSA
      * @Date: 2022/7/12 15:40
      * @Description: 加密
      * @param string $str
+     * @param string $privatePass
      * @param bool $need_base64_encode
      * @return string
      * @throws Exception
      */
-    public static function encrypt(string $str, bool $need_base64_encode = true): string
+    public static function encrypt(string $str, string $privatePass = '', bool $need_base64_encode = true): string
     {
+
+        self::$privatePass = $privatePass ?: self::$privatePass;
+
         $arr = Cache::tags("rsa")->get(self::$prefix . self::$privatePass, false);
         if (!$arr) {
             throw new Exception("没有获取到公钥");
@@ -118,12 +123,14 @@ class RSA
      * @Date: 2022/7/12 15:41
      * @Description: 解密
      * @param string $str
+     * @param string $privatePass
      * @param bool $need_base64_decode
      * @return string
      * @throws Exception
      */
-    public static function decrypt(string $str, bool $need_base64_decode = true): string
+    public static function decrypt(string $str, string $privatePass = '', bool $need_base64_decode = true): string
     {
+        self::$privatePass = $privatePass ?: self::$privatePass;
 
         $arr = Cache::tags("rsa")->get('openssl_' . self::$privatePass, false);
         if (!$arr) {

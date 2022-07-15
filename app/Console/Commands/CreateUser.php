@@ -13,14 +13,14 @@ class CreateUser extends Command
      *
      * @var string
      */
-    protected $signature = 'create:user';
+    protected $signature = 'create:admin';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = '创建测试用户';
+    protected $description = '创建超级管理员';
 
     /**
      * Execute the console command.
@@ -35,9 +35,15 @@ class CreateUser extends Command
 
         User::create(
             [
-                "name"=>"admin",
-                "password"=>password_hash("123456",PASSWORD_BCRYPT),
-                "email"=>"demo@example.com",
+                "name" => "admin",
+                "password" => password_hash("123456", PASSWORD_BCRYPT),
+                "email" => "demo@demo.com",
+                "avatar" => "//lf1-xgcdn-tos.pstatp.com/obj/vcloud/vadmin/start.8e0e4855ee346a46ccff8ff3e24db27b.png",
+                "cn_name" => "超级管理员",
+                "nick_name" => "西瓜哥",
+                "phone" => "18906715574",
+                'phone_verified_at' => now(),
+                'is_admin' => 1,
             ]
         );
         $this->info("created successfully!");

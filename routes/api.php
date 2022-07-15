@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AuthenticateController;
 use App\Http\Controllers\Api\V1\CodeController;
+use App\Http\Controllers\Api\V1\SystemController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -28,13 +29,18 @@ Route::group(['middleware' => 'throttle:10,1'], function () {
 });
 
 
+
+//获取加密公钥
+Route::get('/publicKey', [AuthenticateController::class, "publicKey"])->name("user.publicKey");
 //用户登陆
 Route::post('/login', [AuthenticateController::class, "login"])->name("user.login");
 
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
     //获取用户
-    Route::get('/user', [AuthenticateController::class, "current"])->name("user.current");
+    Route::post('/user/current', [AuthenticateController::class, "current"])->name("user.current");
     //退出登陆
-    Route::get('/logout', [AuthenticateController::class, "logout"])->name("user.logout");
+    Route::post('/user/logout', [AuthenticateController::class, "logout"])->name("user.logout");
+    //清除缓存
+    Route::get('/clearCache', [SystemController::class, "clearCache"])->name("system.clearCache");
 });

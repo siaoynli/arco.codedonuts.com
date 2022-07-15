@@ -19,7 +19,7 @@ class Authenticate extends Middleware
      * @return void
      * @throws AuthenticationException
      */
-    protected function unauthenticated($request, array $guards)
+    protected function unauthenticated($request, array $guards): void
     {
         throw new AuthenticationException(
             '没有权限，Token已经失效.', $guards, $this->redirectTo($request)
@@ -50,7 +50,7 @@ class Authenticate extends Middleware
      * @param $request
      * @return bool
      */
-    protected function shouldReturnJson($request)
+    protected function shouldReturnJson($request): bool
     {
         return $request->expectsJson() || $request->is("api/*");
     }

@@ -6,8 +6,13 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Requests\Api\V1\LoginRequest;
 use App\Models\User;
+use App\Utils\RSA;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use Psr\SimpleCache\InvalidArgumentException;
 
 
 class AuthenticateController extends BaseController
@@ -22,6 +27,9 @@ class AuthenticateController extends BaseController
      * @Description: 登陆接口
      * @param LoginRequest $request
      * @return JsonResponse
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws InvalidArgumentException
      */
     public function login(LoginRequest $request)
     {
@@ -30,7 +38,50 @@ class AuthenticateController extends BaseController
 
         //用户名密码登陆
         if ($type == "account") {
-            $user = User::where('id', 1)->first();
+            $email = $request->email;
+            //第一道解密密码
+            try {
+                $password = $request->password ? RSA::decrypt($request->password, $this->getCacheKey()) : "";
+            } catch (Exception $e) {
+                return failResponseData($e->getMessage());
+            }
+            $user = User::withTrashed()->where('email', $email)->first();
+            if (!$user || $user->deleted_at) {
+                return failResponseData("用户名密码错误");
+            }
+
+            //后台管理远解锁账户的时候注意清除缓存
+            $user_error_limit = "user_login_error_" . $user->id;
+
+            //判断缓存有没有锁定信息
+            if (newCache("api")->get($user_error_limit) >= 5) {
+                return failResponseData("密码输入错误次数过多，账户已经被锁定");
+            }
+
+            if ($user->status == -1 && $user->login_error_count >= 5) {
+                newCache("api")->put($user_error_limit, 5, now()->addHours(24));
+                return failResponseData("密码输入错误次数过多，账户已经被锁定");
+            }
+
+            if (!password_verify($password, $user->password)) {
+                $user->increment('login_error_count');
+                $user->save();
+                //缓存自增
+                if (newCache("api")->has($user_error_limit)) {
+                    newCache("api")->increment($user_error_limit, 1);
+                } else {
+                    newCache("api")->put($user_error_limit, 1, now()->addHours(24));
+                }
+                return failResponseData("用户名密码错误");
+            }
+
+            $user->login_ip = get_client_ip();
+            $user->login_count = $user->login_count + 1;
+            $user->login_error_count = 0;
+            $user->login_time = now();
+            $user->save();
+
+
         } else {
             //手机验证码登陆
             $code = $request->code;
@@ -69,6 +120,9 @@ class AuthenticateController extends BaseController
             $user->login_time = now();
             $user->save();
 
+            //删除key
+            newCache("api")->delete($verification_key);
+
         }
 
 
@@ -76,6 +130,7 @@ class AuthenticateController extends BaseController
         if (!in_array($device_name, $this->devices)) {
             $device_name = "pc";
         }
+
 
         //同设备其他地方登陆的token删除
         $user->destroySanctumTokens($device_name);
@@ -101,7 +156,7 @@ class AuthenticateController extends BaseController
     public function logout(Request $request)
     {
         $request->user()->destroyCurrentSanctumToken();
-        return responseJsonMessage("成功退出", 0);
+        return successResponseData([], "成功退出");
     }
 
     /**
@@ -114,7 +169,41 @@ class AuthenticateController extends BaseController
      */
     public function current(Request $request)
     {
-
-        return responseJsonData(["user" => $request->user()]);
+        return successResponseData(array_merge($request->user()->toArray(), ["role" => "admin"]));
     }
+
+    /**
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/15 11:25
+     * @Description: 发送公钥
+     * @return JsonResponse
+     * @throws Exception
+     */
+    public function publicKey()
+    {
+        $cacheKey = $this->getCacheKey();
+
+        $keys = newCache("api")->remember("publicKey_" . $cacheKey, now()->addHours(1), function () use ($cacheKey) {
+            return  Rsa::generate($cacheKey);
+        });
+
+        return successResponseData(["publicKey" => $keys['publicKey']]);
+
+    }
+
+    /**
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/15 12:52
+     * @Description:  RSA加密密钥，缓存key
+     * @return string
+     */
+    public function getCacheKey(): string
+    {
+        $ip = (string)ip2long(get_client_ip());
+        return sha1($ip);
+    }
+
+
 }
