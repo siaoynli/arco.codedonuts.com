@@ -10,9 +10,11 @@ use App\Utils\RSA;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\SimpleCache\InvalidArgumentException;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 
 class AuthenticateController extends BaseController
@@ -65,7 +67,6 @@ class AuthenticateController extends BaseController
 
             if (!password_verify($password, $user->password)) {
                 $user->increment('login_error_count');
-                $user->save();
                 //缓存自增
                 if (newCache("api")->has($user_error_limit)) {
                     newCache("api")->increment($user_error_limit, 1);
@@ -185,7 +186,7 @@ class AuthenticateController extends BaseController
         $cacheKey = $this->getCacheKey();
 
         $keys = newCache("api")->remember("publicKey_" . $cacheKey, now()->addHours(1), function () use ($cacheKey) {
-            return  Rsa::generate($cacheKey);
+            return Rsa::generate($cacheKey);
         });
 
         return successResponseData(["publicKey" => $keys['publicKey']]);
@@ -205,5 +206,30 @@ class AuthenticateController extends BaseController
         return sha1($ip);
     }
 
+    /**
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/19 14:27
+     * @Description: 生成二维码
+     * @return void
+     */
+    public function qrcode()
+    {
+        $randomStr = 'sso_' . Str::random(64);
+        newCache("api")->put($randomStr, 1, now()->addMinutes(1));
+        return QrCode::size(265)->generate(route("authenticate.wechat") . '?q=' . $randomStr);
+    }
+
+
+    public function wechat(Request $request)
+    {
+        $q = $request->get("q", "");
+        $value = newCache('api')->get($q);
+        if (!$value) {
+            return failResponseData("链接已经失效，请刷新页面重试!");
+        }
+
+
+    }
 
 }
