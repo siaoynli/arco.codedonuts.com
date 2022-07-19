@@ -32,7 +32,7 @@ Route::group(['middleware' => 'throttle:10,1'], function () {
 
 
     Route::get('/serve',[WechatController::class,'serve'] )->name("wechat.serve");
-    Route::get('/auth_code',[WechatController::class,'auth_code'] )->name("wechat.auth_code");
+    Route::get('/auth_code',[WechatController::class,'oauth_code'] )->name("wechat.oauth_code");
     Route::get('/wechat/oauth_back', [WechatController::class,'oauth_back'])->name("wechat.oauth_back");
 });
 
