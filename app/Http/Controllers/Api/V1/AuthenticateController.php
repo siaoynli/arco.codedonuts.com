@@ -43,7 +43,7 @@ class AuthenticateController extends BaseController
             $email = $request->email;
             //第一道解密密码
             try {
-                $password = $request->password ? RSA::decrypt($request->password, $this->getCacheKey()) : "";
+                $password = $request->password ? RSA::decrypt($request->password) : "";
             } catch (Exception $e) {
                 return failResponseData($e->getMessage());
             }
@@ -177,7 +177,7 @@ class AuthenticateController extends BaseController
      * @Author: lixiaoyun
      * @Email: 120235331@qq.com
      * @Date: 2022/7/15 11:25
-     * @Description: 发送公钥
+     * @Description: 发送公钥,公钥缓存1周
      * @return JsonResponse
      * @throws Exception
      */
@@ -185,8 +185,8 @@ class AuthenticateController extends BaseController
     {
         $cacheKey = $this->getCacheKey();
 
-        $keys = newCache("api")->remember("publicKey_" . $cacheKey, now()->addHours(1), function () use ($cacheKey) {
-            return Rsa::generate($cacheKey);
+        $keys = newCache("api")->remember("publicKey_" . $cacheKey, now()->addDays(7), function () {
+            return Rsa::generate();
         });
 
         return successResponseData(["publicKey" => $keys['publicKey']]);
@@ -228,7 +228,6 @@ class AuthenticateController extends BaseController
         if (!$value) {
             return failResponseData("链接已经失效，请刷新页面重试!");
         }
-
 
     }
 
