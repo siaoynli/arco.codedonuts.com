@@ -55,7 +55,7 @@ class RSA
         if (!extension_loaded('openssl')) {
             throw new Exception('openssl extension does not exist');
         }
-        $privatePass = $privatePass?:env('APP_KEY') ;
+        $privatePass = $privatePass ?: sha1(env('APP_KEY'));
 
         //生成证书
         $privkey = openssl_pkey_new(self::$config);
@@ -77,7 +77,7 @@ class RSA
 
         $arr = array('publicKey' => $public, 'privateKey' => $private);
 
-        Cache::tags("rsa")->put(self::$prefix . $privatePass, $arr, now()->addMinutes(20));
+        Cache::tags("rsa")->forever(self::$prefix . $privatePass, $arr);
         return $arr;
     }
 
@@ -96,11 +96,11 @@ class RSA
     public static function encrypt(string $str, string $privatePass = '', bool $need_base64_encode = true): string
     {
 
-        $privatePass = $privatePass?:env('APP_KEY') ;
+        $privatePass = $privatePass ?: sha1(env('APP_KEY'));
 
         $arr = Cache::tags("rsa")->get(self::$prefix .$privatePass, false);
         if (!$arr) {
-            throw new Exception("没有获取到公钥");
+            throw new Exception("没有获取到密钥");
         }
         $public_key = $arr['publicKey'];
         $encrypt_data = '';
@@ -130,11 +130,11 @@ class RSA
      */
     public static function decrypt(string $str, string $privatePass = '', bool $need_base64_decode = true): string
     {
-        $privatePass = $privatePass?:env('APP_KEY') ;
+        $privatePass = $privatePass ?: sha1(env('APP_KEY'));
 
         $arr = Cache::tags("rsa")->get('openssl_' .$privatePass, false);
         if (!$arr) {
-            throw new Exception("没有获取到私钥");
+            throw new Exception("没有获取到密钥");
         }
         $private_key = $arr["privateKey"];
         $decrypt_data = '';
