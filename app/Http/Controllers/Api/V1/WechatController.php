@@ -111,8 +111,11 @@ class WechatController extends Controller
         $user = $app->getOAuth()->userFromCode($code);
         $user = User::where("wx_openid", $user->id)->first();
 
-        if (!$user) {
-            //创建用户
+        if (!$user || !$user->is_admin) {
+            //没有绑定账户，直接提示错误
+            $data = ["status" => -1];
+            newCache("api")->put($q, $data, now()->addMinutes(1));
+            return '没有找到绑定微信的管理员账户';
         }
 
 
@@ -125,11 +128,11 @@ class WechatController extends Controller
         //显示过期时间，token创建时间+过期分钟数
         $expire_at = $user->currentAccessToken()->created_at->addMinutes(config("sanctum.expiration", null))->toDateTimeString();
 
-
+        //找到用户，是授权成功
         $data = ["status" => 1, "token" => $token, "expireAt" => $expire_at];
         newCache("api")->put($q, $data, now()->addMinutes(1));
         //跳转到提示页面
-        return redirect("/");
+        return '成功授权';
 
     }
 }

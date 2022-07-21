@@ -238,7 +238,9 @@ class AuthenticateController extends BaseController
     {
         $randomStr = Str::random(64);
 
-        $data = ["status" => 0];
+
+        //等待扫码
+        $data = ["status" => -2];
         newCache("api")->put($randomStr, $data, now()->addSeconds(65));
 
         $qrcode = QrCode::size(265)->generate(route("authenticate.wechat") . '?q=' . $randomStr);
@@ -265,8 +267,8 @@ class AuthenticateController extends BaseController
         if (!$value) {
             return failResponseData("链接已经失效，请刷新页面重试!");
         }
-        //前台轮询，如果值为-1，就是请求授权中
-        $data = ["status" => -1];
+        //如果值为0，就是扫码后请求授权中
+        $data = ["status" => 0];
         newCache("api")->put($q, $data, now()->addSeconds(65));
         //返回微信链接
         $authUrl = route("wechat.oauth_code", ["callback" => $q]);
@@ -282,15 +284,15 @@ class AuthenticateController extends BaseController
      * @return JsonResponse
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
+     * @throws Exception
      */
     public function checkTicket(Request $request)
     {
         $q = $request->get("q", "");
         $value = newCache('api')->get($q);
         if (!$value) {
-            return failResponseData("链接已经失效，请刷新页面重试!");
+            throw new Exception("页面已经失效，请刷新页面重试!");
         }
-
         return successResponseData($value);
     }
 
