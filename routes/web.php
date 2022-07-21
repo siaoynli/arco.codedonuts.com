@@ -1,6 +1,8 @@
 <?php
 
 
+use App\Events\PusherEvent;
+use App\Events\PusherPrivateEvent;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,6 +17,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    cacheWithPrefix("hzw")->put("aaa", 111, 1000);
+    event(new PusherEvent('hello world'));
     return ping();
 });
