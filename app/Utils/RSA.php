@@ -57,28 +57,28 @@ class RSA
         }
         $privatePass = $privatePass ?: sha1(env('APP_KEY'));
 
-        //生成证书
-        $privkey = openssl_pkey_new(self::$config);
-        $csr = openssl_csr_new(self::$dn, $privkey);
-        $userCert = openssl_csr_sign($csr, null, $privkey, $days);
-        //导出证书$csrKey
-        openssl_x509_export($userCert, $csrKey);
-        //导出密钥$privateKey
-        openssl_pkcs12_export($userCert, $privateKey, $privkey, $privatePass);
-        //获取私钥
-        openssl_pkcs12_read($privateKey, $certs, $privatePass);
+        return Cache::tags("rsa")->rememberForever(self::$prefix . $privatePass, function () use ($privatePass, $days) {
+            //生成证书
+            $privkey = openssl_pkey_new(self::$config);
+            $csr = openssl_csr_new(self::$dn, $privkey);
+            $userCert = openssl_csr_sign($csr, null, $privkey, $days);
+            //导出证书$csrKey
+            openssl_x509_export($userCert, $csrKey);
+            //导出密钥$privateKey
+            openssl_pkcs12_export($userCert, $privateKey, $privkey, $privatePass);
+            //获取私钥
+            openssl_pkcs12_read($privateKey, $certs, $privatePass);
 
-        //    获取公钥
-        $pub_key = openssl_pkey_get_public($csrKey);
-        $keyData = openssl_pkey_get_details($pub_key);
+            //    获取公钥
+            $pub_key = openssl_pkey_get_public($csrKey);
+            $keyData = openssl_pkey_get_details($pub_key);
 
-        $private = $certs['pkey'];
-        $public = $keyData['key'];
+            $private = $certs['pkey'];
+            $public = $keyData['key'];
 
-        $arr = array('publicKey' => $public, 'privateKey' => $private);
+            return array('publicKey' => $public, 'privateKey' => $private);
+        });
 
-        Cache::tags("rsa")->forever(self::$prefix . $privatePass, $arr);
-        return $arr;
     }
 
 
@@ -98,7 +98,7 @@ class RSA
 
         $privatePass = $privatePass ?: sha1(env('APP_KEY'));
 
-        $arr = Cache::tags("rsa")->get(self::$prefix .$privatePass, false);
+        $arr = Cache::tags("rsa")->get(self::$prefix . $privatePass, false);
         if (!$arr) {
             throw new Exception("没有获取到密钥");
         }
@@ -132,7 +132,7 @@ class RSA
     {
         $privatePass = $privatePass ?: sha1(env('APP_KEY'));
 
-        $arr = Cache::tags("rsa")->get('openssl_' .$privatePass, false);
+        $arr = Cache::tags("rsa")->get('openssl_' . $privatePass, false);
         if (!$arr) {
             throw new Exception("没有获取到密钥");
         }
