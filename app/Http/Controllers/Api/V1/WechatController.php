@@ -104,14 +104,32 @@ class WechatController extends Controller
      */
     public function oauth_back(Request $request)
     {
-
         $code = $request->get("code", "");
-
+        //缓存的key
+        $q = $request->get("callback", "");
         $app = $this->getApp();
-
         $user = $app->getOAuth()->userFromCode($code);
+        $user = User::where("wx_openid", $user->id)->first();
 
-        return User::where("wx_openid", $user->id)->first();
+        if (!$user) {
+            //创建用户
+        }
+
+
+        //同设备其他地方登陆的token删除
+        $user->destroySanctumTokens('wechat');
+
+        //获取token
+        $token = $user->getSanctumToken('wechat');
+
+        //显示过期时间，token创建时间+过期分钟数
+        $expire_at = $user->currentAccessToken()->created_at->addMinutes(config("sanctum.expiration", null))->toDateTimeString();
+
+
+        $data = ["status" => 1, "token" => $token, "expireAt" => $expire_at];
+        newCache("api")->put($q, $data, now()->addMinutes(1));
+        //跳转到提示页面
+        return redirect("/");
 
     }
 }

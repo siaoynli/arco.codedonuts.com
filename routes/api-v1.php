@@ -23,19 +23,21 @@ Route::get('/', function (Request $request) {
     return "api v1 works";
 });
 
-//1分钟，频次上限10
-Route::group(['middleware' => 'throttle:10,1'], function () {
+Route::get("/checkTicket", [AuthenticateController::class, "checkTicket"])->name("authenticate.checkTicket");
+
+//1分钟，频次上限120
+Route::group(['middleware' => 'throttle:120,1'], function () {
     //验证码
     Route::post("/code", [CodeController::class, "send"])->name("code.send");
+    Route::get("/getQrcode", [AuthenticateController::class, "getQrcode"])->name("authenticate.getQrcode");
     Route::get("/qrcode", [AuthenticateController::class, "qrcode"])->name("authenticate.qrcode");
     Route::get("/wechat", [AuthenticateController::class, "wechat"])->name("authenticate.wechat");
 
 
-    Route::get('/serve',[WechatController::class,'serve'] )->name("wechat.serve");
-    Route::get('/auth_code',[WechatController::class,'oauth_code'] )->name("wechat.oauth_code");
-    Route::get('/wechat/oauth_back', [WechatController::class,'oauth_back'])->name("wechat.oauth_back");
+    Route::get('/serve', [WechatController::class, 'serve'])->name("wechat.serve");
+    Route::get('/auth_code', [WechatController::class, 'oauth_code'])->name("wechat.oauth_code");
+    Route::get('/wechat/oauth_back', [WechatController::class, 'oauth_back'])->name("wechat.oauth_back");
 });
-
 
 
 //获取加密公钥

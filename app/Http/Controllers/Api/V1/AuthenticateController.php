@@ -8,8 +8,11 @@ use App\Http\Requests\Api\V1\LoginRequest;
 use App\Models\User;
 use App\Utils\RSA;
 use Exception;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Str;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -213,14 +216,48 @@ class AuthenticateController extends BaseController
      * @Description: 生成二维码
      * @return void
      */
-    public function qrcode()
+    public function qrcode(Request $request)
     {
-        $randomStr = 'sso_' . Str::random(64);
-        newCache("api")->put($randomStr, 1, now()->addMinutes(1));
+        $randomStr = $request->get("q", "");
+        if (!$randomStr) {
+            $randomStr = Str::random(64);
+            newCache("api")->put($randomStr, 1, now()->addMinutes(1));
+        }
         return QrCode::size(265)->generate(route("authenticate.wechat") . '?q=' . $randomStr);
     }
 
 
+    /**
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/21 11:11
+     * @Description: 获取二维码链接和检查授权有没有成功链接
+     * @return JsonResponse
+     */
+    public function getQrcode()
+    {
+        $randomStr = Str::random(64);
+
+        $data = ["status" => 0];
+        newCache("api")->put($randomStr, $data, now()->addSeconds(65));
+
+        $qrcode = QrCode::size(265)->generate(route("authenticate.wechat") . '?q=' . $randomStr);
+
+        $checkUri = '/checkTicket?q=' . $randomStr;
+        return successResponseData(["qrcode" => $qrcode->toHtml(), 'checkUri' => $checkUri]);
+    }
+
+
+    /**
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/21 11:12
+     * @Description: 扫码后跳转到微信授权
+     * @param Request $request
+     * @return Application|JsonResponse|RedirectResponse|Redirector
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function wechat(Request $request)
     {
         $q = $request->get("q", "");
@@ -228,7 +265,33 @@ class AuthenticateController extends BaseController
         if (!$value) {
             return failResponseData("链接已经失效，请刷新页面重试!");
         }
+        //前台轮询，如果值为-1，就是请求授权中
+        $data = ["status" => -1];
+        newCache("api")->put($q, $data, now()->addSeconds(65));
+        //返回微信链接
+        $authUrl = route("wechat.oauth_code", ["callback" => $q]);
+        return redirect($authUrl);
+    }
 
+    /**
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/21 11:12
+     * @Description: 微信授权成功会把用户信息存储到q里面，客户端获取到信息，说明授权成功
+     * @param Request $request
+     * @return JsonResponse
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function checkTicket(Request $request)
+    {
+        $q = $request->get("q", "");
+        $value = newCache('api')->get($q);
+        if (!$value) {
+            return failResponseData("链接已经失效，请刷新页面重试!");
+        }
+
+        return successResponseData($value);
     }
 
 }
