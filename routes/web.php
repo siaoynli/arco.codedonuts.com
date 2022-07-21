@@ -15,5 +15,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+    cacheWithPrefix("hzw")->put("aaa", 111, 1000);
     return ping();
 });

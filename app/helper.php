@@ -101,6 +101,21 @@ function diffSecondsToMorn(): float|int
     return Carbon::now()->diffInSeconds($carbon, false);
 }
 
+/**
+ * @Author: lixiaoyun
+ * @Email: 120235331@qq.com
+ * @Date: 2022/7/21 15:20
+ * @Description: 自定义缓存前缀方便与其他项目通信数据,删除掉database.php
+ * 'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+ * @param string $prefix
+ * @return mixed
+ */
+function cacheWithPrefix(string $prefix): mixed
+{
+    cache()->setPrefix($prefix);
+    return cache();
+}
+
 
 /**
  * @Author: lixiaoyun

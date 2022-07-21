@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 
+use App\Models\QueueLogs;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -70,17 +71,37 @@ class AliSmsQueue implements ShouldQueue
         }
         $sendMsg = $code == null ? "发送短信" : "发送验证码:" . $code;
         try {
-            $easySms->send($this->phone, $this->message, ["aliyun"]);
+            $response = $easySms->send($this->phone, $this->message, ["aliyun"]);
         } catch (\Exception $e) {
             $errMsg = $sendMsg . "到手机号码:" . $this->phone . ",失败:" . $e->getExceptions();
             throw new \Exception($errMsg);
         }
 
 
+        $data["message"] = $sendMsg . "到手机号码:" . $this->phone;
+        $data["status"] = 1;
+        $data["response"] = json_encode($response["aliyun"]);
+        $data["class_name"] = __CLASS__;
+        QueueLogs::create($data);
+
     }
 
+    /**
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/21 15:44
+     * @Description: 失败记录
+     * @param \Exception $exception
+     * @return void
+     */
     public function failed(\Exception $exception)
     {
+
+        $data["message"] = $exception->getMessage();;
+        $data["status"] = 0;
+        $data["response"] = json_encode($this->message);
+        $data["class_name"] = __CLASS__;
+        QueueLogs::create($data);
 
     }
 }
