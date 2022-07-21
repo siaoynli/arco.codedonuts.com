@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    event(new PusherEvent('hello world'));
+//    event(new PusherEvent('hello world'));
+    PusherEvent::dispatch('hello world');
     return ping();
 });
