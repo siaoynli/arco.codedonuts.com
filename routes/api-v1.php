@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthenticateController;
+use App\Http\Controllers\Api\V1\BroadcastController;
 use App\Http\Controllers\Api\V1\CodeController;
 use App\Http\Controllers\Api\V1\SystemController;
 use App\Http\Controllers\Api\V1\WechatController;
@@ -47,6 +48,10 @@ Route::post('/login', [AuthenticateController::class, "login"])->name("authentic
 
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
+
+
+    Route::post('/broadcasting/auth', [BroadcastController::class, "auth"])->name("broadcasting.auth");
+
     //获取用户
     Route::post('/user/current', [AuthenticateController::class, "current"])->name("authenticate.current");
     //退出登陆

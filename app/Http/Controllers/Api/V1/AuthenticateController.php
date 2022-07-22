@@ -296,4 +296,5 @@ class AuthenticateController extends BaseController
         return successResponseData($value);
     }
 
+
 }

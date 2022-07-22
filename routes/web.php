@@ -1,8 +1,10 @@
 <?php
 
 
-use App\Events\PusherEvent;
-use App\Events\PusherPrivateEvent;
+use App\Events\MessageNotification;
+use App\Events\PrivateMessageNotification;
+use App\Jobs\AliSmsQueue;
+use App\Utils\AliSms;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,7 +19,24 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-//    event(new PusherEvent('hello world'));
-    PusherEvent::dispatch('hello world');
     return ping();
+});
+
+
+Route::get("/event", function () {
+    MessageNotification::dispatch("你有一条新的工作待完成" . time(), '提示信息', 'success');
+    return "event:" . time();
+});
+
+
+Route::get("/pevent", function () {
+    PrivateMessageNotification::dispatch(1, "用户1你有一条新的工作待完成" . time(), '提示信息', 'success');
+    return "event:" . time();
+});
+
+
+Route::get("/code", function () {
+
+    dispatch(new AliSmsQueue('13516872342', AliSms::codeMessage(1234)))->onQueue("sms");
+    return "send sms:" . time();
 });
