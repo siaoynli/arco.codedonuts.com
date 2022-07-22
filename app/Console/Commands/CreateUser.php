@@ -42,6 +42,7 @@ class CreateUser extends Command
                 "cn_name" => "超级管理员",
                 "nick_name" => "西瓜哥",
                 "phone" => "18906715574",
+                "wx_openid" => "oSoYGj5lL0iaG7o-0pNQUo_OpRjE",
                 'phone_verified_at' => now(),
                 'is_admin' => 1,
             ]

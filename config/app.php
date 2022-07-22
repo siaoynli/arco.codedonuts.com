@@ -197,6 +197,7 @@ return [
         App\Providers\RouteServiceProvider::class,
 
 
+        //laravel-queue-rabbitmq
         VladimirYuldashev\LaravelQueueRabbitMQ\LaravelQueueRabbitMQServiceProvider::class,
 
     ],

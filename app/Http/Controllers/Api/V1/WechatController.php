@@ -34,17 +34,20 @@ class WechatController extends Controller
     public function getApp()
     {
 
+        $config = newCache("api")->remember("wx_config", now()->addHours(24), function () {
+            return [
+                'app_id' => 'wx74a0ca0ae4f78e2e',
+                'secret' => 'c1271e8567d060445e05f2ecff57fa51',
+                'token' => '',
+                'aes_key' => '',
+                'oauth' => [
+                    'scopes' => ['snsapi_userinfo'],
+                    'callback' => route("wechat.oauth_back"),
+                ],
+            ];
+        });
 
-        $config = [
-            'app_id' => 'wxfe8052d5aa86cbf6',
-            'secret' => 'f87e4a4d617baec0e8e35d35ce59171a',
-            'token' => 'yhoABKY5VUSaRjBsUxjW82d',
-            'aes_key' => 'kooQ0mRgSIP4noB2ALaBDU9qeOhEGayuFqyZ4cKiO8N',
-            'oauth' => [
-                'scopes' => ['snsapi_userinfo'],
-                'callback' => route("wechat.oauth_back"),
-            ],
-        ];
+
         try {
             return new Application($config);
         } catch (InvalidArgumentException $e) {
@@ -109,13 +112,14 @@ class WechatController extends Controller
         $q = $request->get("callback", "");
         $app = $this->getApp();
         $user = $app->getOAuth()->userFromCode($code);
-        $user = User::where("wx_openid", $user->id)->first();
 
+        $user = User::where("wx_openid", $user->id)->first();
         if (!$user || !$user->is_admin) {
             //没有绑定账户，直接提示错误
             $data = ["status" => -1];
             newCache("api")->put($q, $data, now()->addMinutes(1));
-            return '没有找到绑定微信的管理员账户';
+            $message = "没有找到绑定微信的管理员账户!";
+            return view("weixin", compact('message'));
         }
 
 
@@ -132,7 +136,8 @@ class WechatController extends Controller
         $data = ["status" => 1, "token" => $token, "expireAt" => $expire_at];
         newCache("api")->put($q, $data, now()->addMinutes(1));
         //跳转到提示页面
-        return '成功授权';
+        $message = "授权成功,请关闭窗口!";
+        return view("weixin", compact('message'));
 
     }
 }
