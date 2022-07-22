@@ -1,6 +1,7 @@
 <?php
 
 
+use App\Events\ChatRoomEvent;
 use App\Events\MessageNotification;
 use App\Events\PrivateMessageNotification;
 use App\Jobs\AliSmsQueue;
@@ -25,13 +26,19 @@ Route::get('/', function () {
 
 Route::get("/event", function () {
     MessageNotification::dispatch("你有一条新的工作待完成" . time(), '提示信息', 'success');
-    return "event:" . time();
+    return "公共广播:" . time();
 });
 
 
 Route::get("/pevent", function () {
-    PrivateMessageNotification::dispatch(1, "用户1你有一条新的工作待完成" . time(), '提示信息', 'success');
-    return "event:" . time();
+    PrivateMessageNotification::dispatch(1, "用户1你有一条新的工作待完成!" . time(), '提示信息', 'success');
+    return "私有广播:" . time();
+});
+
+Route::get("/chat/{uid}", function ($uid) {
+    $roomId = 1;
+    ChatRoomEvent::dispatch($roomId, "来自" . $uid . ":你好!" . time());
+    return "聊天室广播:" . time();
 });
 
 

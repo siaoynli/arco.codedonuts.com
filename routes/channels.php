@@ -1,6 +1,8 @@
 <?php
 
-use App\Broadcasting\PusherChannel;
+
+use App\Broadcasting\ChatRoomChannel;
+use App\Broadcasting\UserPrivateChannel;
 use Illuminate\Support\Facades\Broadcast;
 
 /*
@@ -15,8 +17,6 @@ use Illuminate\Support\Facades\Broadcast;
 */
 
 
-Broadcast::channel('channel-name', PusherChannel::class);
+Broadcast::channel('User.{id}', UserPrivateChannel::class);
 
-Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
-    return (int)$user->id === (int)$id;
-});
+Broadcast::channel('Chat.{chatId}', ChatRoomChannel::class);

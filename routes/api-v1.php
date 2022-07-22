@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\ChatRoomEvent;
 use App\Http\Controllers\Api\V1\AuthenticateController;
 use App\Http\Controllers\Api\V1\BroadcastController;
 use App\Http\Controllers\Api\V1\CodeController;
@@ -48,14 +49,20 @@ Route::post('/login', [AuthenticateController::class, "login"])->name("authentic
 
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
-
-
-    Route::post('/broadcasting/auth', [BroadcastController::class, "auth"])->name("broadcasting.auth");
-
     //获取用户
     Route::post('/user/current', [AuthenticateController::class, "current"])->name("authenticate.current");
     //退出登陆
     Route::post('/user/logout', [AuthenticateController::class, "logout"])->name("authenticate.logout");
     //清除缓存
     Route::get('/clearCache', [SystemController::class, "clearCache"])->name("system.clearCache");
+
+    //聊天室广播
+    Route::get("/chat", function () {
+        $user = request()->user();
+        $roomId = 1;
+        event((new ChatRoomEvent($roomId, "来自" . $user->id . ":你好!" . time())))->dontBroadcastToCurrentUser();
+//        broadcast(new ChatRoomEvent($roomId, "来自" . $user->id . ":你好!" . time()))->toOthers();
+        return "聊天室广播:" . time();
+    });
+
 });

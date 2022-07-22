@@ -14,7 +14,11 @@ class BroadcastServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Broadcast::routes();
+        //  Broadcast::routes();
+
+        //routes()参数如果不配置 默认走的是web中间件
+        //'middleware' => 'auth:sanctum' 然后广播路由走auth:sanctum中间件
+        Broadcast::routes(['middleware' => 'auth:sanctum', "prefix" => "api/v1"]);
 
         require base_path('routes/channels.php');
     }
