@@ -30,8 +30,8 @@ Route::get("/event", function () {
 });
 
 
-Route::get("/pevent", function () {
-    PrivateMessageNotification::dispatch(1, "用户1你有一条新的工作待完成!" . time(), '提示信息', 'success');
+Route::get("/pevent/{id}", function ($id) {
+    PrivateMessageNotification::dispatch($id, "用户" . $id . "你有一条新的工作待完成!" . time(), '提示信息', 'success');
     return "私有广播:" . time();
 });
 

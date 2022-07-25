@@ -60,8 +60,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get("/chat", function () {
         $user = request()->user();
         $roomId = 1;
-        event((new ChatRoomEvent($roomId, "来自" . $user->id . ":你好!" . time())))->dontBroadcastToCurrentUser();
-//        broadcast(new ChatRoomEvent($roomId, "来自" . $user->id . ":你好!" . time()))->toOthers();
+        broadcast(new ChatRoomEvent($roomId, "来自" . $user->id . ":你好!" . time()))->toOthers();
         return "聊天室广播:" . time();
     });
 

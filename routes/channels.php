@@ -17,6 +17,6 @@ use Illuminate\Support\Facades\Broadcast;
 */
 
 
-Broadcast::channel('User.{id}', UserPrivateChannel::class);
+Broadcast::channel('App.Models.User.{id}', UserPrivateChannel::class);
 
 Broadcast::channel('Chat.{chatId}', ChatRoomChannel::class);
