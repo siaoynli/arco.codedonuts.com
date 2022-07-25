@@ -67,7 +67,7 @@ class CodeController extends BaseController
         newCache("api")->put($send_limit_key, time() + 60, now()->addSeconds(60));
 
         //后台发送验证码
-        dispatch(new AliSmsQueue((int)$phone, AliSms::codeMessage($code)))->onQueue("sms");
+        dispatch(new AliSmsQueue((int)$phone, AliSms::codeMessage($code)));
 
         return successResponseData(["key" => $key, "expireAt" => $expireAt->toDateTimeString()]);
 

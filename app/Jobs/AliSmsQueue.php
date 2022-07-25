@@ -47,6 +47,7 @@ class AliSmsQueue implements ShouldQueue
         $this->template = $template;
         $this->phone = $phone;
         $this->sign_name = $sign_name;
+        $this->queue = "sms";
 
     }
 

@@ -5,6 +5,7 @@ use App\Events\ChatRoomEvent;
 use App\Events\MessageNotification;
 use App\Events\PrivateMessageNotification;
 use App\Jobs\AliSmsQueue;
+use App\Notifications\InvoicePaid;
 use App\Utils\AliSms;
 use Illuminate\Support\Facades\Route;
 
@@ -39,6 +40,13 @@ Route::get("/chat/{uid}", function ($uid) {
     $roomId = 1;
     ChatRoomEvent::dispatch($roomId, "来自" . $uid . ":你好!" . time());
     return "聊天室广播:" . time();
+});
+
+
+Route::get("/notification/{id}", function ($id) {
+    $user = \App\Models\User::find($id);
+    $user->notify(new InvoicePaid("用户" . $id . "您的订单已经支付!"));
+    return "订单通知广播:" . time();
 });
 
 
