@@ -31,14 +31,14 @@ Route::get("/event", function () {
 });
 
 
-Route::get("/pevent/{id}", function ($id) {
+Route::get("/private/{id}", function ($id) {
     PrivateMessageNotification::dispatch($id, "用户" . $id . "你有一条新的工作待完成!" . time(), '提示信息', 'success');
     return "私有广播:" . time();
 });
 
-Route::get("/chat/{uid}", function ($uid) {
-    $roomId = 1;
-    ChatRoomEvent::dispatch($roomId, "来自" . $uid . ":你好!" . time());
+Route::get("/chat/{rid}", function ($rid) {
+    $uid = request()->get("uid", 1);
+    ChatRoomEvent::dispatch($rid, "聊天室:" . $rid . ",来自" . $uid . ":你好!" . time());
     return "聊天室广播:" . time();
 });
 
