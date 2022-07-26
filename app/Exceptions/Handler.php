@@ -36,7 +36,7 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $levels = [
-        //
+        InvalidException::class
     ];
 
     /**
@@ -104,6 +104,7 @@ class Handler extends ExceptionHandler
             $e instanceof AuthenticationException => $this->unauthenticated($request, $e),
             $e instanceof ValidationException => $this->convertValidationExceptionToResponse($e, $request),
             $e instanceof NotFoundHttpException => $this->httpNotFound($request, $e),
+            $e instanceof InvalidException => $this->invalidResponse($request, $e),
             $e instanceof ThrottleRequestsException => $this->throttleRequestsException($request, $e),
             $e instanceof MethodNotAllowedHttpException => $this->methodNotAllowedHttpException($request, $e),
             default => $this->renderExceptionResponse($request, $e),
@@ -138,7 +139,24 @@ class Handler extends ExceptionHandler
     protected function httpNotFound($request, NotFoundHttpException $exception): \Illuminate\Http\Response|JsonResponse|Response
     {
         return $this->shouldReturnJson($request, $exception)
-            ? failResponseData('Http Not Found',  $exception->getStatusCode())
+            ? failResponseData('Http Not Found', $exception->getStatusCode())
+            : $this->prepareResponse($request, $exception);
+    }
+
+
+    /**
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/26 11:04
+     * @Description: 无效验证
+     * @param $request
+     * @param InvalidException $exception
+     * @return \Illuminate\Http\Response|JsonResponse|Response
+     */
+    protected function invalidResponse($request, InvalidException $exception): \Illuminate\Http\Response|JsonResponse|Response
+    {
+        return $this->shouldReturnJson($request, $exception)
+            ? failResponseData($exception->getMessage(), 200)
             : $this->prepareResponse($request, $exception);
     }
 
@@ -186,7 +204,7 @@ class Handler extends ExceptionHandler
     protected function unauthenticated($request, AuthenticationException $exception): JsonResponse|Response|RedirectResponse
     {
         return $this->shouldReturnJson($request, $exception)
-            ? failResponseData($exception->getMessage(),  401)
+            ? failResponseData($exception->getMessage(), 401)
             : redirect()->guest($exception->redirectTo() ?? route('login'));
     }
 
@@ -202,7 +220,7 @@ class Handler extends ExceptionHandler
      */
     protected function invalidJson($request, ValidationException $exception): JsonResponse
     {
-        return failResponseData($exception->validator->errors()->first(),  $exception->status);
+        return failResponseData($exception->validator->errors()->first(), $exception->status);
 
     }
 

@@ -4,17 +4,17 @@ namespace App\Http\Controllers\Api\V1;
 
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Models\Api\V1\User;
 use EasyWeChat\Kernel\Exceptions\BadRequestException;
 use EasyWeChat\Kernel\Exceptions\InvalidArgumentException;
 use EasyWeChat\Kernel\Exceptions\RuntimeException;
 use EasyWeChat\OfficialAccount\Application;
 use Exception;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use ReflectionException;
 use Throwable;
@@ -97,13 +97,11 @@ class WechatController extends Controller
     /**
      * @Author: lixiaoyun
      * @Email: 120235331@qq.com
-     * @Date: 2022/7/19 15:42
-     * @Description: 获取用户
+     * @Date: 2022/7/26 12:08
+     * @Description:
      * @param Request $request
-     * @return mixed
-     * @throws ContainerExceptionInterface
+     * @return \Illuminate\Contracts\Foundation\Application|Factory|View
      * @throws InvalidArgumentException
-     * @throws NotFoundExceptionInterface
      */
     public function oauth_back(Request $request)
     {
@@ -122,15 +120,13 @@ class WechatController extends Controller
             return view("weixin", compact('message'));
         }
 
-
         //同设备其他地方登陆的token删除
         $user->destroySanctumTokens('wechat');
-
         //获取token
         $token = $user->getSanctumToken('wechat');
 
         //显示过期时间，token创建时间+过期分钟数
-        $expire_at = $user->currentAccessToken()->created_at->addMinutes(config("sanctum.expiration", null))->toDateTimeString();
+        $expire_at = $user->getTokenExpireAt();
 
         //找到用户，是授权成功
         $data = ["status" => 1, "token" => $token, "expireAt" => $expire_at];

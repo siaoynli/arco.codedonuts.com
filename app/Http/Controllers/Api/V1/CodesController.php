@@ -3,18 +3,26 @@
 namespace App\Http\Controllers\Api\V1;
 
 
+use App\Exceptions\InvalidException;
 use App\Http\Requests\Api\V1\VerificationCodesRequest;
 use App\Jobs\AliSmsQueue;
+use App\Services\Api\V1\CodeService;
 use App\Utils\AliSms;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 
-class CodeController extends BaseController
+class CodesController extends BaseController
 {
+
+    protected CodeService $service;
+
+    public function __construct(CodeService $service)
+    {
+        $this->service = $service;
+    }
 
     /**
      * @Author: lixiaoyun
@@ -25,6 +33,7 @@ class CodeController extends BaseController
      * @return JsonResponse
      * @throws ContainerExceptionInterface
      * @throws InvalidArgumentException
+     * @throws InvalidException
      * @throws NotFoundExceptionInterface
      */
     public function send(VerificationCodesRequest $request)
@@ -34,27 +43,14 @@ class CodeController extends BaseController
 
         $day_limit_key = "day_limit_" . $phone;
 
-        if (newCache("api")->has($day_limit_key)) {
-            //每天单个手机号码限制发送短信次数
-            if (newCache("api")->get($day_limit_key) >= 10) {
-                return failResponseData("该手机号码发送短信超过单日限制,请联系管理员");
-            }
-            newCache("api")->increment($day_limit_key, 1);
-        } else {
-            newCache("api")->put($day_limit_key, 1, diffSecondsToMorn());
-        }
+        $this->service->limitCode($phone, $day_limit_key);
 
         //手机号码分钟频率限制
         $send_limit_key = 'send_limit_' . $phone;
-        $value = newCache("api")->get($send_limit_key);
-        if ($value) {
-            $interval_time = $value - time();
-            if ($interval_time > 0) {
-                return failResponseData("该手机号码已经发过短信，请过" . $interval_time . '秒后再试');
-            }
-        }
+        $this->service->throttleCode($send_limit_key);
+
         //生成验证码
-        $code = str_pad((string)rand(1000, 999999), 6, "0", STR_PAD_LEFT);
+        $code = $this->service->generateCode();
 
         //加密
         $key = 'code_' . Str::random(15);

@@ -11,13 +11,12 @@
 
 declare (strict_types=1);
 
-namespace App\Models;
+namespace App\Models\Api\V1;
 
 use Laravel\Sanctum\PersonalAccessToken as SanctumPersonalAccessToken;
 
 class PersonalAccessToken extends SanctumPersonalAccessToken
 {
-
 
 
 }

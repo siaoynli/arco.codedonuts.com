@@ -1,12 +1,12 @@
 <?php
 
-use App\Events\ChatRoomEvent;
-use App\Http\Controllers\Api\V1\AuthenticateController;
-use App\Http\Controllers\Api\V1\BroadcastController;
-use App\Http\Controllers\Api\V1\CodeController;
+
+use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\BroadCastsController;
+use App\Http\Controllers\Api\V1\CodesController;
+use App\Http\Controllers\Api\V1\IndexController;
 use App\Http\Controllers\Api\V1\SystemController;
 use App\Http\Controllers\Api\V1\WechatController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,19 +21,17 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::get('/', function (Request $request) {
-    return "api v1 works";
-});
+Route::get('/', [IndexController::class, "index"]);
 
-Route::get("/checkTicket", [AuthenticateController::class, "checkTicket"])->name("authenticate.checkTicket");
+Route::get("/checkTicket", [AuthController::class, "checkTicket"])->name("authenticate.checkTicket");
 
 //1分钟，频次上限120
 Route::group(['middleware' => 'throttle:120,1'], function () {
     //验证码
-    Route::post("/code", [CodeController::class, "send"])->name("code.send");
-    Route::get("/getQrcode", [AuthenticateController::class, "getQrcode"])->name("authenticate.getQrcode");
-    Route::get("/qrcode", [AuthenticateController::class, "qrcode"])->name("authenticate.qrcode");
-    Route::get("/wechat", [AuthenticateController::class, "wechat"])->name("authenticate.wechat");
+    Route::post("/code", [CodesController::class, "send"])->name("code.send");
+    Route::get("/getQrcode", [AuthController::class, "getQrcode"])->name("authenticate.getQrcode");
+    Route::get("/qrcode", [AuthController::class, "qrcode"])->name("authenticate.qrcode");
+    Route::get("/wechat", [AuthController::class, "wechat"])->name("authenticate.wechat");
 
 
     Route::get('/serve', [WechatController::class, 'serve'])->name("wechat.serve");
@@ -43,25 +41,20 @@ Route::group(['middleware' => 'throttle:120,1'], function () {
 
 
 //获取加密公钥
-Route::get('/publicKey', [AuthenticateController::class, "publicKey"])->name("authenticate.publicKey");
+Route::get('/publicKey', [AuthController::class, "publicKey"])->name("authenticate.publicKey");
 //用户登陆
-Route::post('/login', [AuthenticateController::class, "login"])->name("authenticate.login");
+Route::post('/login', [AuthController::class, "login"])->name("authenticate.login");
 
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
     //获取用户
-    Route::post('/user/current', [AuthenticateController::class, "current"])->name("authenticate.current");
+    Route::post('/user/current', [AuthController::class, "current"])->name("authenticate.current");
     //退出登陆
-    Route::post('/user/logout', [AuthenticateController::class, "logout"])->name("authenticate.logout");
+    Route::post('/user/logout', [AuthController::class, "logout"])->name("authenticate.logout");
     //清除缓存
     Route::get('/clearCache', [SystemController::class, "clearCache"])->name("system.clearCache");
 
     //聊天室广播
-    Route::get("/chat", function () {
-        $user = request()->user();
-        $roomId = 1;
-        broadcast(new ChatRoomEvent($roomId, "来自" . $user->id . ":你好!" . time()))->toOthers();
-        return "聊天室广播:" . time();
-    });
+    Route::get("/chat", [BroadCastsController::class, "chat"]);
 
 });

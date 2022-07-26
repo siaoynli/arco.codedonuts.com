@@ -12,9 +12,8 @@
 
 declare(strict_types=1);
 
-namespace App\Models;
+namespace App\Models\Api\V1;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -24,7 +23,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable,SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     /**
      * @var string[]
@@ -59,6 +58,9 @@ class User extends Authenticatable
         'invite_code',
         'certification',
     ];
+
+    //防止意外被修改
+    protected $guarded = ['id', 'is_admin'];
 
     /**
      * @var string[]
@@ -116,5 +118,30 @@ class User extends Authenticatable
     public function destroyCurrentSanctumToken(): mixed
     {
         return $this->currentAccessToken()->delete();
+    }
+
+    /**
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/26 12:06
+     * @Description: 过期时间 token创建时间+过期分钟数
+     * @return mixed
+     */
+    public function getTokenExpireAt(): mixed
+    {
+        return $this->currentAccessToken()->created_at->addMinutes(config("sanctum.expiration", null))->toDateTimeString();
+    }
+
+    /**
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/26 9:08
+     * @Description: 密码自动加密
+     * @param $value
+     * @return void
+     */
+    public function setPasswordAttribute($value): void
+    {
+        $this->attributes['password'] = password_hash($value, PASSWORD_DEFAULT);
     }
 }

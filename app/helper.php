@@ -25,7 +25,7 @@ use Illuminate\Support\Carbon;
  */
 function ping(): string
 {
-    return "it's works ok!";
+    return "it's works:" . date("Y-m-d");
 }
 
 /**
@@ -136,7 +136,7 @@ function get_client_ip(): mixed
     } elseif (isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] && strcasecmp($_SERVER['REMOTE_ADDR'], 'unknown')) {
         $ip = $_SERVER['REMOTE_ADDR'];
     }
-    return preg_match('/[\d\.]{7,15}/', $ip, $matches) ? $matches [0] : '';
+    return preg_match('/\d{7,15}/', $ip, $matches) ? $matches [0] : '';
 }
 
 

@@ -3,10 +3,10 @@
 namespace App\Http\Requests\Api\V1;
 
 
-use App\Models\User;
+use App\Models\Api\V1\User;
 use App\Rules\PhoneNumberRule;
 
-class LoginRequest extends BaseRequest implements RequestInterface
+class UserLoginRequest extends BaseRequest implements RequestInterface
 {
 
 

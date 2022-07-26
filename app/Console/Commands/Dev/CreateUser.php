@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Dev;
 
-use App\Models\User;
+use App\Models\Api\V1\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -13,7 +13,7 @@ class CreateUser extends Command
      *
      * @var string
      */
-    protected $signature = 'create:admin';
+    protected $signature = 'arco:create-admin';
 
     /**
      * The console command description.
@@ -22,11 +22,7 @@ class CreateUser extends Command
      */
     protected $description = '创建管理员用户';
 
-    /**
-     * Execute the console command.
-     *
-     * @return int
-     */
+
     public function handle()
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');

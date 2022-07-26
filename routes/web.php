@@ -1,12 +1,8 @@
 <?php
 
 
-use App\Events\ChatRoomEvent;
-use App\Events\MessageNotification;
-use App\Events\PrivateMessageNotification;
-use App\Jobs\AliSmsQueue;
-use App\Notifications\InvoicePaid;
-use App\Utils\AliSms;
+use App\Http\Controllers\BroadCastsController;
+use App\Http\Controllers\IndexController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,38 +16,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return ping();
-});
+Route::get('/', [IndexController::class, "index"]);
 
+Route::get("/event", [BroadCastsController::class, "event"]);
+Route::get("/private/{id}", [BroadCastsController::class, "priEvent"]);
+Route::get("/chat/{rid}", [BroadCastsController::class, "chat"]);
+Route::get("/notification/{id}", [BroadCastsController::class, "notification"]);
 
-Route::get("/event", function () {
-    MessageNotification::dispatch("你有一条新的工作待完成" . time(), '提示信息', 'success');
-    return "公共广播:" . time();
-});
-
-
-Route::get("/private/{id}", function ($id) {
-    PrivateMessageNotification::dispatch($id, "用户" . $id . "你有一条新的工作待完成!" . time(), '提示信息', 'success');
-    return "私有广播:" . time();
-});
-
-Route::get("/chat/{rid}", function ($rid) {
-    $uid = request()->get("uid", 1);
-    ChatRoomEvent::dispatch($rid, "聊天室:" . $rid . ",来自" . $uid . ":你好!" . time());
-    return "聊天室广播:" . time();
-});
-
-
-Route::get("/notification/{id}", function ($id) {
-    $user = \App\Models\User::find($id);
-    $user->notify(new InvoicePaid("用户" . $id . "您的订单已经支付!"));
-    return "订单通知广播:" . time();
-});
-
-
-Route::get("/code", function () {
-
-    dispatch(new AliSmsQueue('13516872342', AliSms::codeMessage(1234)))->onQueue("sms");
-    return "send sms:" . time();
-});

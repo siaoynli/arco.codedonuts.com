@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 
-use App\Models\QueueLogs;
+use App\Models\Api\V1\QueueLog;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -83,7 +83,7 @@ class AliSmsQueue implements ShouldQueue
         $data["status"] = 1;
         $data["response"] = json_encode($response["aliyun"]);
         $data["class_name"] = __CLASS__;
-        QueueLogs::create($data);
+        QueueLog::create($data);
 
     }
 
@@ -101,7 +101,7 @@ class AliSmsQueue implements ShouldQueue
         $data["status"] = 0;
         $data["response"] = $exception->getMessage();
         $data["class_name"] = __CLASS__;
-        QueueLogs::create($data);
+        QueueLog::create($data);
 
     }
 }
