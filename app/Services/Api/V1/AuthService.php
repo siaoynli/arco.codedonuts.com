@@ -7,7 +7,7 @@ use App\Exceptions\InvalidException;
 use App\Models\Api\V1\User;
 use App\Utils\RSA;
 use Exception;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Model;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AuthService
@@ -36,13 +36,13 @@ class AuthService
     /**
      * @Author: lixiaoyun
      * @Email: 120235331@qq.com
-     * @Date: 2022/7/26 10:27
+     * @Date: 2022/7/26 15:41
      * @Description:
      * @param $field
      * @param $value
-     * @return Builder|null
+     * @return Model|null
      */
-    public function getUserByField($field, $value): Builder|null
+    public function getUserByField($field, $value): Model|null
     {
         return User::withTrashed()->where($field, $value)->first();
     }
@@ -75,6 +75,7 @@ class AuthService
      */
     public function checkUserStatus($user): void
     {
+
         if (!$user || $user->deleted_at) {
             throw InvalidException::withMessage("用户名密码错误");
         }

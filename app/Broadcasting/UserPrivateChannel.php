@@ -26,9 +26,9 @@ class UserPrivateChannel
      *
      * @param User $user
      * @param $id
-     * @return array|bool
+     * @return bool
      */
-    public function join(User $user, $id): bool|array
+    public function join(User $user, $id): bool
     {
         return $user->id == $id;
     }

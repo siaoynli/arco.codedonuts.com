@@ -44,21 +44,16 @@ class AuthController extends BaseController
      * @throws InvalidException
      * @throws NotFoundExceptionInterface
      */
-    public function login(UserLoginRequest $request)
+    public function login(UserLoginRequest $request): JsonResponse
     {
-
         $type = $request->get("loginType", "code");
-
         switch ($type) {
             case "account":
                 $email = $request->email;
                 //第一道解密密码
                 $password = $this->service->getPassword($request->password);
-
                 $user = $this->service->getUserByField('email', $email);
-
                 $this->service->checkUserStatus($user);
-
                 if (!password_verify($password, $user->password)) {
                     $user->increment('login_error_count');
                     throw InvalidException::withMessage("用户名密码错误");
@@ -92,16 +87,13 @@ class AuthController extends BaseController
 
 
         $this->service->userLogin($user);
-
         $device_name = $this->service->getDriverName($request->get("device_name", "pc"));
-
         //同设备其他地方登陆的token删除
         $user->destroySanctumTokens($device_name);
         //获取token
         $token = $user->getSanctumToken($device_name);
         //显示过期时间
         $expire_at = $user->getTokenExpireAt();
-
         return successResponseData(["token" => $token, "expireAt" => $expire_at]);
     }
 
@@ -114,7 +106,7 @@ class AuthController extends BaseController
      * @param Request $request
      * @return JsonResponse
      */
-    public function logout(Request $request)
+    public function logout(Request $request): JsonResponse
     {
         $request->user()->destroyCurrentSanctumToken();
         return successResponseData([], "成功退出");
@@ -128,7 +120,7 @@ class AuthController extends BaseController
      * @param Request $request
      * @return JsonResponse
      */
-    public function current(Request $request)
+    public function current(Request $request): JsonResponse
     {
         $user = array_merge($request->user()->toArray(), ["role" => "admin"]);
         return successResponseData($user);
@@ -142,7 +134,7 @@ class AuthController extends BaseController
      * @return JsonResponse
      * @throws Exception
      */
-    public function publicKey()
+    public function publicKey(): JsonResponse
     {
         $cacheKey = $this->getCacheKey();
 
@@ -172,16 +164,17 @@ class AuthController extends BaseController
      * @Email: 120235331@qq.com
      * @Date: 2022/7/19 14:27
      * @Description: 生成二维码
-     * @return void
+     * @param Request $request
+     * @return string
      */
-    public function qrcode(Request $request)
+    public function qrcode(Request $request): string
     {
         $randomStr = $request->get("q", "");
         if (!$randomStr) {
             $randomStr = Str::random(64);
             newCache("api")->put($randomStr, 1, now()->addMinutes(1));
         }
-        return QrCode::size(265)->generate(route("authenticate.wechat") . '?q=' . $randomStr);
+        return QrCode::size(265)->generate(route("authenticate.wechat") . '?q=' . $randomStr)->toHtml();
     }
 
 
@@ -192,7 +185,7 @@ class AuthController extends BaseController
      * @Description: 获取二维码链接和检查授权有没有成功链接
      * @return JsonResponse
      */
-    public function getQrcode()
+    public function getQrcode(): JsonResponse
     {
         $randomStr = Str::random(64);
         //等待扫码
@@ -214,7 +207,7 @@ class AuthController extends BaseController
      * @throws InvalidException
      * @throws NotFoundExceptionInterface
      */
-    public function wechat(Request $request)
+    public function wechat(Request $request): Redirector|RedirectResponse|Application
     {
         $q = $request->get("q", "");
         $value = newCache('api')->get($q);
@@ -239,7 +232,7 @@ class AuthController extends BaseController
      * @throws NotFoundExceptionInterface
      * @throws Exception
      */
-    public function checkTicket(Request $request)
+    public function checkTicket(Request $request): JsonResponse
     {
         $q = $request->get("q", "");
         $value = newCache('api')->get($q);

@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 
-use App\Models\Api\V1\QueueLog;
+use App\Jobs\Traits\QueueLogs;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -26,6 +26,7 @@ use Overtrue\EasySms\EasySms;
 
 class AliSmsQueue implements ShouldQueue
 {
+    use QueueLogs;
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 1;
@@ -79,11 +80,8 @@ class AliSmsQueue implements ShouldQueue
             throw new Exception(json_encode($exception->getExceptions()));
         }
 
-        $data["message"] = $sendMsg . "到手机号码:" . $this->phone . ',ok';
-        $data["status"] = 1;
-        $data["response"] = json_encode($response["aliyun"]);
-        $data["class_name"] = __CLASS__;
-        QueueLog::create($data);
+        $message = $sendMsg . "到手机号码:" . $this->phone . ',ok';
+        $this->createQueueLogs($message, json_encode($response["aliyun"]), 1);
 
     }
 
@@ -97,11 +95,8 @@ class AliSmsQueue implements ShouldQueue
      */
     public function failed(Exception $exception): void
     {
-        $data["message"] = 'error:' . json_encode($this->template);
-        $data["status"] = 0;
-        $data["response"] = $exception->getMessage();
-        $data["class_name"] = __CLASS__;
-        QueueLog::create($data);
-
+        $this->createQueueLogs('error:' . json_encode($this->template), $exception->getMessage(), 0);
     }
+
+
 }

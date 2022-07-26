@@ -55,3 +55,11 @@ PUSHER_HOST=pusher.demo.com
 PUSHER_PORT=443
 PUSHER_SCHEME=https
 ```
+
+### 查询缓存
+
+```
+composer require  genealabs/laravel-model-caching
+```
+
+### 程序如果报500错误,前端页面会出现跨域报错

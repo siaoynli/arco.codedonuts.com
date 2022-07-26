@@ -47,7 +47,6 @@ class User extends Authenticatable
         'remarks',
         'role_id',
         'department_id',
-        'is_admin',
         'login_notification',
         'phone_verified_at',
         'wx_openid',
@@ -62,12 +61,16 @@ class User extends Authenticatable
     //防止意外被修改
     protected $guarded = ['id', 'is_admin'];
 
-    /**
-     * @var string[]
-     */
+
+    //序列化隐藏字段
     protected $hidden = [
         'password',
         'remember_token',
+        'is_admin',
+        'wx_openid',
+        'qq_openid',
+        'ios_openid',
+        'device_hash',
     ];
 
     /**

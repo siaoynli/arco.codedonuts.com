@@ -1,9 +1,8 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Api\V1;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Api\V1\User>
@@ -17,12 +16,18 @@ class UserFactory extends Factory
      */
     public function definition()
     {
+        $name = fake()->name();
         return [
-            'name' => fake()->name(),
-            'email' => fake()->safeEmail(),
+            "name" => fake()->userName(),
+            "password" => '123456',
+            "email" => fake()->unique()->safeEmail(),
+            "avatar" => 'https://www.gravatar.com/avatar/' . md5(strtolower(trim(fake()->email()))) . '?d=identicon',
+            "cn_name" => $name,
+            "nick_name" => $name,
+            "phone" => fake()->unique()->phoneNumber(),
+            'phone_verified_at' => now(),
             'email_verified_at' => now(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-            'remember_token' => Str::random(10),
+            'is_admin' => 0,
         ];
     }
 

@@ -25,7 +25,7 @@ class ChatRoomChannel
      * @param $chatId
      * @return bool
      */
-    public function join(User $user, $chatId)
+    public function join(User $user, $chatId): bool
     {
         return in_array($user->id, [1, 2]);
 

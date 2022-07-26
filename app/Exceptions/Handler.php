@@ -36,7 +36,7 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $levels = [
-        InvalidException::class
+
     ];
 
     /**
@@ -44,7 +44,7 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        //
+        //  InvalidException::class
     ];
 
     /**

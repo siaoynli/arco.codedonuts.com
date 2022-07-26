@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\V1\CodesController;
 use App\Http\Controllers\Api\V1\IndexController;
 use App\Http\Controllers\Api\V1\SystemController;
 use App\Http\Controllers\Api\V1\WechatController;
-use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -21,17 +21,18 @@ use Illuminate\Support\Facades\Route;
 */
 
 
+
 Route::get('/', [IndexController::class, "index"]);
 
-Route::get("/checkTicket", [AuthController::class, "checkTicket"])->name("authenticate.checkTicket");
+Route::get("/checkTicket", [AuthController::class, "checkTicket"])->name("auth.checkTicket");
 
 //1分钟，频次上限120
 Route::group(['middleware' => 'throttle:120,1'], function () {
     //验证码
     Route::post("/code", [CodesController::class, "send"])->name("code.send");
-    Route::get("/getQrcode", [AuthController::class, "getQrcode"])->name("authenticate.getQrcode");
-    Route::get("/qrcode", [AuthController::class, "qrcode"])->name("authenticate.qrcode");
-    Route::get("/wechat", [AuthController::class, "wechat"])->name("authenticate.wechat");
+    Route::get("/getQrcode", [AuthController::class, "getQrcode"])->name("auth.getQrcode");
+    Route::get("/qrcode", [AuthController::class, "qrcode"])->name("auth.qrcode");
+    Route::get("/wechat", [AuthController::class, "wechat"])->name("auth.wechat");
 
 
     Route::get('/serve', [WechatController::class, 'serve'])->name("wechat.serve");
@@ -41,16 +42,16 @@ Route::group(['middleware' => 'throttle:120,1'], function () {
 
 
 //获取加密公钥
-Route::get('/publicKey', [AuthController::class, "publicKey"])->name("authenticate.publicKey");
+Route::get('/publicKey', [AuthController::class, "publicKey"])->name("auth.publicKey");
 //用户登陆
-Route::post('/login', [AuthController::class, "login"])->name("authenticate.login");
+Route::post('/login', [AuthController::class, "login"])->name("auth.login");
 
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
     //获取用户
-    Route::post('/user/current', [AuthController::class, "current"])->name("authenticate.current");
+    Route::post('/user/current', [AuthController::class, "current"])->name("auth.current");
     //退出登陆
-    Route::post('/user/logout', [AuthController::class, "logout"])->name("authenticate.logout");
+    Route::post('/user/logout', [AuthController::class, "logout"])->name("auth.logout");
     //清除缓存
     Route::get('/clearCache', [SystemController::class, "clearCache"])->name("system.clearCache");
 

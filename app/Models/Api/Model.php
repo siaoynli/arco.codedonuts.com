@@ -61,4 +61,61 @@ class Model extends EloquentModel
         return $query->where('user_id', $user->id);
     }
 
+    /**
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/26 17:09
+     * @Description:
+     * @param $query
+     * @return mixed
+     */
+    public function scopeActive($query): mixed
+    {
+        return $query->where('status', 1);
+    }
+
+    /**
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/26 17:09
+     * @Description: 查询$days天内注册的用户
+     * @param $query
+     * @param $days
+     * @return mixed
+     */
+    public function scopeRegisteredWithinDays($query, $days): mixed
+    {
+        return $query->where('created_at', '>=', now()->subDays($days));
+    }
+
+    /**
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/26 17:11
+     * @Description: 查询今天的记录
+     * @param $query
+     * @return mixed
+     */
+    public function scopeToday($query): mixed
+    {
+        return $query->whereDate('created_at', now());
+    }
+
+
+    /**
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/26 17:11
+     * @Description: 永不更新name字段
+     * @param $value
+     * @return void
+     */
+    public function setNameAttribute($value): void
+    {
+        if ($this->name) {
+            return;
+        }
+        $this->attributes['name'] = $value;
+    }
+
 }

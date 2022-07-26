@@ -44,8 +44,10 @@ class RouteServiceProvider extends ServiceProvider
     }
 
     /**
-     * Configure the rate limiters for the application.
-     *
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/26 12:26
+     * @Description: 这里是请求限制
      * @return void
      */
     protected function configureRateLimiting(): void

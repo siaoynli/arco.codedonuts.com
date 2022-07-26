@@ -3,7 +3,7 @@
 
 use App\Broadcasting\ChatRoomChannel;
 use App\Broadcasting\UserPrivateChannel;
-use Illuminate\Support\Facades\Broadcast;
+
 
 /*
 |--------------------------------------------------------------------------

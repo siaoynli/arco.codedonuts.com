@@ -29,7 +29,7 @@ return new class extends Migration {
             $table->tinyInteger('status')->default(0)->comment('状态');
             $table->string('remarks', 255)->nullable()->comment('备注');
             $table->integer('role_id')->default(0);
-            $table->integer('department_id')->nullable();
+            $table->integer('department_id')->default(0);
             $table->boolean('is_admin')->default(0)->comment('是否是管理员');
             $table->boolean('login_notification')->default(0)->comment('登录账号，是否短信提醒');
             $table->timestamp('phone_verified_at')->nullable()->comment('手机号码验证');
