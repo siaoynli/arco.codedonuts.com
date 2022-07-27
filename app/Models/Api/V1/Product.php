@@ -3,6 +3,7 @@
 namespace App\Models\Api\V1;
 
 
+use App\Jobs\SyncOneProductToES;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
@@ -31,7 +32,35 @@ class Product extends Model
         'on_sale' => 'boolean', // on_sale 是一个布尔类型的字段
     ];
 
-    // 与商品SKU关联
+
+    /**
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/27 16:46
+     * @Description: 监听增删改查，同步数据到es
+     * @return void
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+        static::created(function ($model) {
+            dispatch(new SyncOneProductToES($model));
+        });
+        static::saved(function ($model) {
+            dispatch(new SyncOneProductToES($model));
+        });
+        static::updated(function ($model) {
+            dispatch(new SyncOneProductToES($model));
+        });
+    }
+
+    /**
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/27 16:48
+     * @Description: 商品SKU
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function skus()
     {
         return $this->hasMany(ProductSku::class);
@@ -40,8 +69,33 @@ class Product extends Model
     /**
      * @Author: lixiaoyun
      * @Email: 120235331@qq.com
+     * @Date: 2022/7/27 16:48
+     * @Description: 商品属性
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function properties()
+    {
+        return $this->hasMany(ProductProperty::class);
+    }
+
+    /**
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/27 16:48
+     * @Description: 商品类别
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+
+    /**
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
      * @Date: 2022/7/27 15:18
-     * @Description: es
+     * @Description: 处理成ES的数据
      * @return array
      */
     public function toESArray(): array
@@ -60,8 +114,10 @@ class Product extends Model
             'price',
         ]);
 
+
         // 如果商品有类目，则 category 字段为类目名数组，否则为空字符串
-        $arr['category'] = $this->category ? explode(' - ', $this->category->full_name) : '';
+        $arr['category'] = $this->category ? [$this->category->name] : '';
+
         // 类目的 path 字段
         $arr['category_path'] = $this->category ? $this->category->path : '';
         // strip_tags 函数可以将 html 标签去除
@@ -80,4 +136,6 @@ class Product extends Model
 
         return $arr;
     }
+
+
 }
