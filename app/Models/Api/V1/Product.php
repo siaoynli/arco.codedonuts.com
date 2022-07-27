@@ -20,6 +20,7 @@ class Product extends Model
         'title',
         'long_title',
         'description',
+        'summary',
         'image',
         'on_sale',
         'rating',
@@ -122,6 +123,7 @@ class Product extends Model
         $arr['category_path'] = $this->category ? $this->category->path : '';
         // strip_tags 函数可以将 html 标签去除
         $arr['description'] = strip_tags($this->description);
+        $arr['summary'] = strip_tags($this->summary);
         // 只取出需要的 SKU 字段
         $arr['skus'] = $this->skus->map(function (ProductSku $sku) {
             return Arr::only($sku->toArray(), ['title', 'description', 'price']);

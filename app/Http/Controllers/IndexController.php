@@ -49,6 +49,31 @@ class IndexController extends Controller
             ],
         ];
 
+
+        if ($search = $request->input('search', '')) {
+            $keywords = array_filter(explode(' ', $search));
+            $params['body']['query']['bool']['must'] = [];
+            // 遍历搜索词数组，分别添加到 must 查询中
+            foreach ($keywords as $keyword) {
+                $params['body']['query']['bool']['must'][] = [
+                    'multi_match' => [
+                        'query' => $keyword,
+                        'fields' => [
+                            'title^2',
+                            'long_title^2',
+                            'category^2',
+                            'description',
+                            'summary^2',
+                            'skus.title^2',
+                            'skus.description',
+                            'properties.value',
+                        ],
+                    ],
+                ];
+            }
+        }
+
+
         // 是否有提交 order 参数，如果有就赋值给 $order 变量
         // order 参数用来控制商品的排序规则
         if ($order = $request->input('order', '')) {
