@@ -18,6 +18,7 @@ use App\Http\Controllers\IndexController;
 
 Route::get('/', [IndexController::class, "index"]);
 Route::get('/user', [IndexController::class, "user"]);
+Route::get('/search', [IndexController::class, "search"]);
 
 Route::get("/event", [BroadCastsController::class, "event"]);
 Route::get("/private/{id}", [BroadCastsController::class, "priEvent"]);

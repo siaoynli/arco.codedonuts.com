@@ -58,7 +58,7 @@ class Article extends Model
      * @Author: lixiaoyun
      * @Email: 120235331@qq.com
      * @Date: 2022/7/26 17:19
-     * @Description: 保存数据到数据库时自动填充slug字段
+     * @Description: 保存数据时,处理slug字段
      * @return void
      */
     protected static function boot(): void
