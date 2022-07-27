@@ -30,7 +30,6 @@ class SyncProducts extends Command
     {
         // 获取 Elasticsearch 对象
         $es = app('es');
-
         Product::query()
             // 预加载 SKU 和 商品属性数据，避免 N + 1 问题
             ->with(['skus', 'properties'])

@@ -22,7 +22,7 @@ class ProjectIndex
         return 'products';
     }
 
-    public static function getProperties()
+    public static function getProperties(): array
     {
         return [
             'type' => ['type' => 'keyword'],

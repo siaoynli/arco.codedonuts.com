@@ -195,6 +195,8 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\HorizonServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        //es搜索
+        App\Providers\ElasticSearchProvider::class,
 
 
         //laravel-queue-rabbitmq
