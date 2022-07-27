@@ -25,8 +25,8 @@ trait MultiTenantModelTrait
     public static function bootMultiTenantModelTrait(): void
     {
         static::creating(function ($model) {
-            if (property_exists($model, 'user_id')) {
-                $model->user_id = auth()->id();
+            if (in_array('user_id', $model->fillable)) {
+                $model->user_id = optional(auth())->id ?: 2;
             }
         });
     }

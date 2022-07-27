@@ -14,11 +14,14 @@ declare(strict_types=1);
 namespace App\Models\Api;
 
 
+use App\Models\Api\Traits\MultiTenantModelTrait;
 use App\Models\Api\V1\User;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 
 class Model extends EloquentModel
 {
+
+    use MultiTenantModelTrait;
 
     /**
      * @Author: lixiaoyun

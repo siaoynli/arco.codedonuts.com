@@ -6,6 +6,8 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class BaseRequest extends FormRequest
 {
+    //首次验证失败时停止
+    protected $stopOnFirstFailure = true;
 
     protected string $model = "";
     protected int $id = 0;
