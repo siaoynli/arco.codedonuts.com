@@ -12,6 +12,10 @@ class IndexController extends Controller
 {
     public function index()
     {
+        $product = Product::find(30);
+
+        $product->update(["long_title" => "修改后的标题2222"]);
+
         return ping();
     }
 

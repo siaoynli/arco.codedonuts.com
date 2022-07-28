@@ -16,7 +16,7 @@ class SyncOneProductToES implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use QueueLogs;
 
-    protected $product;
+    protected Product $product;
 
     public function __construct(Product $product)
     {
@@ -32,7 +32,6 @@ class SyncOneProductToES implements ShouldQueue
         try {
             app('es')->index([
                 'index' => 'products',
-                'type' => '_doc',
                 'id' => $data['id'],
                 'body' => $data,
             ]);

@@ -14,14 +14,15 @@ declare(strict_types=1);
 namespace App\Console\Commands\Dev\Indexs;
 
 use Illuminate\Support\Facades\Artisan;
-use JetBrains\PhpStorm\ArrayShape;
 
-class ProjectIndex
+class ProjectIndex implements IndexInterface
 {
+
     public static function getAliasName(): string
     {
         return 'products';
     }
+
 
     public static function getProperties(): array
     {
@@ -61,7 +62,7 @@ class ProjectIndex
         ];
     }
 
-    #[ArrayShape(['analysis' => "array"])] public static function getSettings(): array
+    public static function getSettings(): array
     {
         return [
             'analysis' => [
@@ -83,14 +84,7 @@ class ProjectIndex
         ];
     }
 
-    /**
-     * @Author: lixiaoyun
-     * @Email: 120235331@qq.com
-     * @Date: 2022/7/28 8:58
-     * @Description: 重建
-     * @param $indexName
-     * @return void
-     */
+
     public static function rebuild($indexName): void
     {
         // 通过 Artisan 类的 call 方法可以直接调用命令
