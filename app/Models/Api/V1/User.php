@@ -59,7 +59,10 @@ class User extends Authenticatable
     ];
 
     //防止意外被修改
-    protected $guarded = ['id', 'is_admin'];
+    protected $guarded = [
+        'id',
+        'is_admin',
+    ];
 
 
     //序列化隐藏字段
@@ -73,13 +76,12 @@ class User extends Authenticatable
         'device_hash',
     ];
 
-    /**
-     * @var string[]
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
 
+    // 格式化数据
+    protected $casts = [
+        //'email_verified_at' => 'datetime',
+        "open_comment" => "boolean"
+    ];
 
     /**
      * @Author: lixiaoyun

@@ -12,16 +12,15 @@ class IndexController extends Controller
 {
     public function index()
     {
-        $product = Product::find(30);
-
-        $product->update(["long_title" => "修改后的标题2222"]);
-
         return ping();
     }
 
-    public function user()
+    public function users()
     {
-        return new UserResource(User::find(1));
+        $users = User::take(5)->get()->map(function ($user) {
+            return new UserResource($user);
+        });
+        return successResponseData(["records" => $users]);
     }
 
     /**
