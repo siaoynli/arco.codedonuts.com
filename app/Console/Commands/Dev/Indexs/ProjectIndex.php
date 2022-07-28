@@ -11,9 +11,10 @@
 
 declare(strict_types=1);
 
-namespace App\Console\Commands\Dev\Indices;
+namespace App\Console\Commands\Dev\Indexs;
 
 use Illuminate\Support\Facades\Artisan;
+use JetBrains\PhpStorm\ArrayShape;
 
 class ProjectIndex
 {
@@ -60,7 +61,7 @@ class ProjectIndex
         ];
     }
 
-    public static function getSettings()
+    #[ArrayShape(['analysis' => "array"])] public static function getSettings(): array
     {
         return [
             'analysis' => [
@@ -74,6 +75,7 @@ class ProjectIndex
                 'filter' => [
                     'synonym_filter' => [
                         'type' => 'synonym',
+                        //analysis/synonyms.txt 文件创建在/usr/share/elasticsearch/config目录下
                         'synonyms_path' => 'analysis/synonyms.txt',
                     ],
                 ],
@@ -81,8 +83,15 @@ class ProjectIndex
         ];
     }
 
-
-    public static function rebuild($indexName)
+    /**
+     * @Author: lixiaoyun
+     * @Email: 120235331@qq.com
+     * @Date: 2022/7/28 8:58
+     * @Description: 重建
+     * @param $indexName
+     * @return void
+     */
+    public static function rebuild($indexName): void
     {
         // 通过 Artisan 类的 call 方法可以直接调用命令
         // call 方法的第二个参数可以用数组的方式给命令传递参数

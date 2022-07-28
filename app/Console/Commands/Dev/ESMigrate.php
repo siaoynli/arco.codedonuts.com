@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands\Dev;
 
-use App\Console\Commands\Dev\Indices\ProjectIndex;
+use App\Console\Commands\Dev\Indexs\ProjectIndex;
 use Illuminate\Console\Command;
 
 class ESMigrate extends Command
@@ -38,6 +38,7 @@ class ESMigrate extends Command
                 $this->info('索引存在，准备更新');
                 $this->updateIndex($aliasName, $indexClass);
             } catch (\Exception $e) {
+
                 $this->warn('更新失败，准备重建');
                 $this->reCreateIndex($aliasName, $indexClass);
             }
@@ -57,10 +58,8 @@ class ESMigrate extends Command
                 // 调用索引类的 getSettings() 方法获取索引设置
                 'settings' => $indexClass::getSettings(),
                 'mappings' => [
-                    '_doc' => [
-                        // 调用索引类的 getProperties() 方法获取索引字段
-                        'properties' => $indexClass::getProperties(),
-                    ],
+                    // 调用索引类的 getProperties() 方法获取索引字段
+                    'properties' => $indexClass::getProperties(),
                 ],
                 'aliases' => [
                     // 同时创建别名
@@ -84,11 +83,12 @@ class ESMigrate extends Command
         // 更新索引字段
         $this->es->indices()->putMapping([
             'index' => $aliasName,
-            'type' => '_doc',
             'body' => [
-                '_doc' => [
-                    'properties' => $indexClass::getProperties(),
+                '_source' => [
+                    'enabled' => true
                 ],
+                //只能新增字段，不能修改原有字段属性
+                'properties' => $indexClass::getProperties(),
             ],
         ]);
         // 重新打开索引
@@ -116,9 +116,7 @@ class ESMigrate extends Command
             'body' => [
                 'settings' => $indexClass::getSettings(),
                 'mappings' => [
-                    '_doc' => [
-                        'properties' => $indexClass::getProperties(),
-                    ],
+                    'properties' => $indexClass::getProperties(),
                 ],
             ],
         ]);
