@@ -18,15 +18,17 @@ class ESMigrate extends Command
     public function handle()
     {
         $this->es = app('es');
+
         // 索引类数组，先留空
         $indices = [ProjectIndex::class];
         // 遍历索引类数组
         foreach ($indices as $indexClass) {
             // 调用类数组的 getAliasName() 方法来获取索引别名
             $aliasName = $indexClass::getAliasName();
+
             $this->info('正在处理索引 ' . $aliasName);
             // 通过 exists 方法判断这个别名是否存在
-            if (!$this->es->indices()->exists(['index' => $aliasName])) {
+            if (!$this->es->indices()->exists(['index' => $aliasName])->asBool()) {
                 $this->info('索引不存在，准备创建');
                 $this->createIndex($aliasName, $indexClass);
                 $this->info('创建成功，准备初始化数据');
@@ -122,8 +124,10 @@ class ESMigrate extends Command
      */
     protected function reCreateIndex($aliasName, $indexClass): void
     {
+
+
         // 获取索引信息，返回结构的 key 为索引名称，value 为别名
-        $indexInfo = $this->es->indices()->getAliases(['index' => $aliasName]);
+        $indexInfo = $this->es->indices()->getAlias(['index' => $aliasName]);
         // 取出第一个 key 即为索引名称
         $oldIndexName = array_keys($indexInfo)[0];
         // 用正则判断索引名称是否以 _数字 结尾

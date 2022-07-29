@@ -12,6 +12,7 @@ class IndexController extends Controller
 {
     public function index()
     {
+
         return ping();
     }
 
@@ -38,7 +39,6 @@ class IndexController extends Controller
         // 构建查询
         $params = [
             'index' => 'products',
-            'type' => '_doc',
             'body' => [
                 'from' => ($page - 1) * $perPage, // 通过当前页数与每页数量计算偏移值
                 'size' => $perPage,
@@ -89,7 +89,6 @@ class IndexController extends Controller
                 }
             }
         }
-
 
         $result = app('es')->search($params);
 

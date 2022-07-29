@@ -76,8 +76,8 @@ class ProjectIndex implements IndexInterface
                 'filter' => [
                     'synonym_filter' => [
                         'type' => 'synonym',
-                        //analysis/synonyms.txt 文件创建在/usr/share/elasticsearch/config目录下
-                        'synonyms_path' => 'analysis/synonyms.txt',
+                        //synonyms.txt 文件创建在/usr/share/elasticsearch/config目录下
+                        'synonyms_path' => 'synonyms.txt',
                     ],
                 ],
             ],
